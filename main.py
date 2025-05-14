@@ -1,5 +1,6 @@
 from fastapi import FastAPI, Query, Body
 import uvicorn
+import threading
 
 app = FastAPI()
 
@@ -8,19 +9,42 @@ hotels = [
     {'id': 2, 'title': 'Dubai', 'name': 'dubai'}
 ]
 
-@app.get("/")
+
+import time
+import asyncio
+
+@app.get('/async/{id}')
+async def get_async(id: int):
+    print(f"Потоки: {threading.active_count()}")
+    print(f"async. Начал {id}: {time.time()}")
+    await asyncio.sleep(3)
+    print(f"async. Закончил {id}: {time.time()}")
+
+
+@app.get('/sync/{id}')
+def get_sync(id: int):
+    print(f"Потоки: {threading.active_count()}")
+    print(f"sync. Начал {id}: {time.time()}")
+    time.sleep(3)
+    print(f"sync. Закончил {id}: {time.time()}")
+
+@app.get(
+    "/",
+    summary='Главная страница',
+    description='<h1>Главная страница api</h1>'
+)
 def main():
     return "Hello World!"
 
 @app.get("/hotels")
 def get_hotels(
-        id: int | None = Query(None, description="Hotel ID"),
+        hotel_id: int | None = Query(None, description="Hotel ID"),
         title: str | None = Query(None, description="Hotel title"),
 ):
     hotels_ = []
 
     for hotel in hotels:
-        if id and hotel["id"] != id:
+        if hotel_id and hotel["id"] != hotel_id:
             continue
         if title and hotel["title"] != title:
             continue
@@ -90,4 +114,4 @@ def change_hotel(
 
 
 if __name__ == "__main__":
-    uvicorn.run("main:app", reload=True )
+    uvicorn.run("main:app", reload=True, port=8000)
