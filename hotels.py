@@ -1,10 +1,16 @@
 from fastapi import APIRouter, Query
+import math
 from schemas.hotels import Hotel, HotelPATCH
 
 
 hotels = [
     {'id': 1, 'title': 'Sochi', "name": "sochi"},
-    {'id': 2, 'title': 'Dubai', 'name': 'dubai'}
+    {'id': 2, 'title': 'Dubai', 'name': 'dubai'},
+    {'id': 3, 'title': 'Moscow', 'name': 'moscow'},
+    {'id': 4, 'title': 'New York', 'name': 'new york'},
+    {'id': 5, 'title': 'London', 'name': 'london'},
+    {'id': 6, 'title': 'Paris', 'name': 'paris'},
+    {'id': 7, 'title': 'Rome', 'name': 'rome'},
 ]
 
 router = APIRouter(prefix= '/hotels', tags=['Отели'])
@@ -14,17 +20,32 @@ router = APIRouter(prefix= '/hotels', tags=['Отели'])
 def get_hotels(
         hotel_id: int | None = Query(None, description="Hotel ID"),
         title: str | None = Query(None, description="Hotel title"),
+        page: int | None = Query(1, description="Page number"),
+        per_page: int | None = Query(3, description="Number of hotels per page"),
 ):
-    hotels_ = []
-
+    filtered_hotels = []
     for hotel in hotels:
         if hotel_id and hotel["id"] != hotel_id:
             continue
         if title and hotel["title"] != title:
             continue
-        hotels_.append(hotel)
-    return hotels_
+        filtered_hotels.append(hotel)
 
+    total_pages = math.ceil(len(filtered_hotels) / per_page)
+
+    if page > total_pages and filtered_hotels:
+        return {'error': 'Page not found'}
+
+    start = (page - 1) * per_page
+    end = min(start + per_page, len(filtered_hotels))
+
+    return {
+        'page': page,
+        'per_page': per_page,
+        'total_hotels': len(filtered_hotels),
+        'total_pages': total_pages,
+        'data': filtered_hotels[start:end]
+    }
 
 @router.post("")
 def create_hotel(hotel_data: Hotel):
