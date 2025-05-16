@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Query
 import math
 from schemas.hotels import Hotel, HotelPATCH
-
+from dependencies import PaginationDep
 
 hotels = [
     {'id': 1, 'title': 'Sochi', "name": "sochi"},
@@ -18,10 +18,9 @@ router = APIRouter(prefix= '/hotels', tags=['Отели'])
 
 @router.get("")
 def get_hotels(
+        pagination: PaginationDep,
         hotel_id: int | None = Query(None, description="Hotel ID"),
         title: str | None = Query(None, description="Hotel title"),
-        page: int | None = Query(1, description="Page number"),
-        per_page: int | None = Query(3, description="Number of hotels per page"),
 ):
     filtered_hotels = []
     for hotel in hotels:
@@ -31,20 +30,17 @@ def get_hotels(
             continue
         filtered_hotels.append(hotel)
 
-    total_pages = math.ceil(len(filtered_hotels) / per_page)
+    total_pages = math.ceil(len(filtered_hotels) / pagination.per_page)
 
-    if page > total_pages and filtered_hotels:
+    if pagination.page > total_pages and filtered_hotels:
         return {'error': 'Page not found'}
 
-    start = (page - 1) * per_page
-    end = min(start + per_page, len(filtered_hotels))
-
     return {
-        'page': page,
-        'per_page': per_page,
+        'page': pagination.page,
+        'per_page': pagination.per_page,
         'total_hotels': len(filtered_hotels),
         'total_pages': total_pages,
-        'data': filtered_hotels[start:end]
+        'data': filtered_hotels[(pagination.page - 1) * pagination.per_page:][:pagination.per_page]
     }
 
 @router.post("")
