@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Query
 import math
-from schemas.hotels import Hotel, HotelPATCH
-from dependencies import PaginationDep
+from src.schemas.hotels import Hotel, HotelPATCH
+from src.api.dependencies import PaginationDep
 
 hotels = [
     {'id': 1, 'title': 'Sochi', "name": "sochi"},
