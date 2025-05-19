@@ -1,57 +1,46 @@
 from fastapi import APIRouter, Query
 import math
+
+from sqlalchemy import insert, select
+from src.database import async_session_maker, engine
+from src.models.hotels import HotelsModel
 from src.schemas.hotels import Hotel, HotelPATCH
 from src.api.dependencies import PaginationDep
 
-hotels = [
-    {'id': 1, 'title': 'Sochi', "name": "sochi"},
-    {'id': 2, 'title': 'Dubai', 'name': 'dubai'},
-    {'id': 3, 'title': 'Moscow', 'name': 'moscow'},
-    {'id': 4, 'title': 'New York', 'name': 'new york'},
-    {'id': 5, 'title': 'London', 'name': 'london'},
-    {'id': 6, 'title': 'Paris', 'name': 'paris'},
-    {'id': 7, 'title': 'Rome', 'name': 'rome'},
-]
 
 router = APIRouter(prefix= '/hotels', tags=['Отели'])
 
 
 @router.get("")
-def get_hotels(
+async def get_hotels(
         pagination: PaginationDep,
-        hotel_id: int | None = Query(None, description="Hotel ID"),
+        location: str | None = Query(None, description="Hotel location"),
         title: str | None = Query(None, description="Hotel title"),
 ):
-    filtered_hotels = []
-    for hotel in hotels:
-        if hotel_id and hotel["id"] != hotel_id:
-            continue
-        if title and hotel["title"] != title:
-            continue
-        filtered_hotels.append(hotel)
+    per_page = pagination.per_page or 5
+    async with async_session_maker() as session:
+        query = select(HotelsModel)
+        if location:
+            query = query.where(HotelsModel.location.ilike(f'%{location}%'))
+        if title:
+            query = query.where(HotelsModel.title.ilike(f'%{title}%'))
+        query = (
+            query
+            .limit(per_page)
+            .offset(per_page * (pagination.page - 1))
+        )
 
-    total_pages = math.ceil(len(filtered_hotels) / pagination.per_page)
+        result = await session.execute(query)
 
-    if pagination.page > total_pages and filtered_hotels:
-        return {'error': 'Page not found'}
-
-    return {
-        'page': pagination.page,
-        'per_page': pagination.per_page,
-        'total_hotels': len(filtered_hotels),
-        'total_pages': total_pages,
-        'data': filtered_hotels[(pagination.page - 1) * pagination.per_page:][:pagination.per_page]
-    }
+        return result.scalars().all()
 
 @router.post("")
-def create_hotel(hotel_data: Hotel):
-    global hotels
-
-    hotels.append({
-        "id": hotels[-1]["id"] + 1,
-        "title": hotel_data.title,
-        "name": hotel_data.name,
-    })
+async def create_hotel(hotel_data: Hotel):
+    async with async_session_maker() as session:
+        add_hotel_stmt = insert(HotelsModel).values(**hotel_data.model_dump())
+        print(add_hotel_stmt.compile(engine, compile_kwargs={"literal_binds": True}))
+        await session.execute(add_hotel_stmt)
+        await session.commit()
 
     return {
         "success": "true",
