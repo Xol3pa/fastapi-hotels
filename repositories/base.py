@@ -1,10 +1,12 @@
-from fastapi import HTTPException
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from sqlalchemy import select, insert, update, delete
 
 
 class BaseRepository:
     model = None
+    schema: BaseModel = None
+
+    model_config = ConfigDict(from_attributes=True)
 
     def __init__(self, session):
         self.session = session
@@ -12,24 +14,16 @@ class BaseRepository:
     async def get_all(self, *args, **kwargs):
         query = select(self.model)
         result = await self.session.execute(query)
-        return result.scalars().all()
+        return [self.schema.model_validate(model) for model in result.scalars().all()]
 
     async def get_one_or_none(self, **filter_by):
         query = select(self.model).filter_by(**filter_by)
         result = await self.session.execute(query)
-        return result.scalars().one_or_none()
+        model = result.scalars().one_or_none()
+        if model is None:
+            return None
 
-    async def get_one_or_raise(self, **filter_by):
-        query = select(self.model).filter_by(**filter_by)
-        result = await self.session.execute(query)
-        objs = result.scalars().all()
-
-        if len(objs) == 0:
-            raise HTTPException(status_code=404, detail="Object not found")
-        if len(objs) > 1:
-            raise HTTPException(status_code=400, detail="Multiple objects found")
-
-        return objs[0]
+        return self.schema.model_validate(model)
 
     async def add(self, data: BaseModel):
         add_data_stmt = (
@@ -38,12 +32,11 @@ class BaseRepository:
             .returning(self.model)
         )
         result = await self.session.execute(add_data_stmt)
+        model = result.scalars().one()
 
-        return result.scalars().one()
+        return self.schema.model_validate(model)
 
     async def edit(self, data: BaseModel, exclude_unset: bool = False, **filter_by) -> None:
-        await self.get_one_or_raise(**filter_by)
-
         edit_data_stmt = (
             update(self.model)
             .filter_by(**filter_by)
@@ -53,7 +46,5 @@ class BaseRepository:
         await self.session.execute(edit_data_stmt)
 
     async def delete(self, **filter_by) -> None:
-        await self.get_one_or_raise(**filter_by)
-
         delete_stmt = delete(self.model).filter_by(**filter_by)
         await self.session.execute(delete_stmt)
