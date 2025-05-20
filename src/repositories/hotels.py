@@ -1,4 +1,4 @@
-from repositories.base import BaseRepository
+from src.repositories.base import BaseRepository
 from src.models.hotels import HotelsModel
 from sqlalchemy import select, func
 
