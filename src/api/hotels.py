@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, Query, HTTPException
 from repositories.hotels import HotelsRepository
 from src.database import async_session_maker, engine
 from src.schemas.hotels import Hotel, HotelPATCH
@@ -22,6 +22,14 @@ async def get_hotels(
             limit=per_page,
             offset=per_page * (pagination.page - 1),
         )
+
+@router.get('/{hotel_id}')
+async def get_hotel_by_id(hotel_id: int):
+    async with async_session_maker() as session:
+        hotel = await HotelsRepository(session).get_one_or_none(id=hotel_id)
+        if not hotel:
+            raise HTTPException(status_code=404)
+        return hotel
 
 @router.post("")
 async def create_hotel(hotel_data: Hotel):
