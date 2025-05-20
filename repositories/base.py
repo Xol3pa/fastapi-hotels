@@ -41,13 +41,13 @@ class BaseRepository:
 
         return result.scalars().one()
 
-    async def edit(self, data: BaseModel, **filter_by) -> None:
+    async def edit(self, data: BaseModel, exclude_unset: bool = False, **filter_by) -> None:
         await self.get_one_or_raise(**filter_by)
 
         edit_data_stmt = (
             update(self.model)
             .filter_by(**filter_by)
-            .values(**data.model_dump())
+            .values(**data.model_dump(exclude_unset=exclude_unset))
         )
 
         await self.session.execute(edit_data_stmt)
@@ -55,5 +55,5 @@ class BaseRepository:
     async def delete(self, **filter_by) -> None:
         await self.get_one_or_raise(**filter_by)
 
-        query = delete(self.model).filter_by(**filter_by)
-        await self.session.execute(query)
+        delete_stmt = delete(self.model).filter_by(**filter_by)
+        await self.session.execute(delete_stmt)
