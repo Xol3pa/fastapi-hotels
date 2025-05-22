@@ -1,4 +1,7 @@
+from datetime import datetime, timedelta, timezone
+
 import jwt
+from fastapi import HTTPException
 from passlib.context import CryptContext
 
 from src.config import settings
@@ -7,9 +10,13 @@ from src.config import settings
 class AuthService:
     pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-    def create_access_token(self, data: dict) -> str:
+    def create_access_token(sekf, data: dict, expires_delta: timedelta | None = None):
         to_encode = data.copy()
-        to_encode.update({"exp": settings.ACCESS_TOKEN_EXPIRE_MINUTES})
+        if expires_delta:
+            expire = datetime.now(timezone.utc) + expires_delta
+        else:
+            expire = datetime.now(timezone.utc) + timedelta(minutes=15)
+        to_encode.update({"exp": expire})
         encoded_jwt = jwt.encode(to_encode, settings.JWT_SECRET_KEY, algorithm=settings.JWT_ALGORITHM)
         return encoded_jwt
 
@@ -19,3 +26,8 @@ class AuthService:
     def hask_password(self, password):
         return self.pwd_context.hash(password)
 
+    def decode_access_token(self, token: str):
+        try:
+            return jwt.decode(token, settings.JWT_SECRET_KEY, algorithms=[settings.JWT_ALGORITHM])
+        except jwt.exceptions.DecodeError:
+            raise HTTPException(status_code=401, detail="Invalid token")
