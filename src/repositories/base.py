@@ -1,12 +1,10 @@
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel
 from sqlalchemy import select, insert, update, delete
 
 
 class BaseRepository:
     model = None
     schema: BaseModel = None
-
-    model_config = ConfigDict(from_attributes=True)
 
     def __init__(self, session):
         self.session = session
