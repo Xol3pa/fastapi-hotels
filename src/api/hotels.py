@@ -24,7 +24,9 @@ async def get_hotels(
         )
 
 @router.get('/{hotel_id}')
-async def get_hotel_by_id(hotel_id: int):
+async def get_hotel_by_id(
+        hotel_id: int
+):
     async with async_session_maker() as session:
         hotel = await HotelsRepository(session).get_one_or_none(id=hotel_id)
         if not hotel:
@@ -32,7 +34,9 @@ async def get_hotel_by_id(hotel_id: int):
         return hotel
 
 @router.post("")
-async def create_hotel(hotel_data: HotelAdd):
+async def create_hotel(
+        hotel_data: HotelAdd
+):
     async with async_session_maker() as session:
         hotel = await HotelsRepository(session).add(hotel_data)
         await session.commit()
@@ -44,7 +48,9 @@ async def create_hotel(hotel_data: HotelAdd):
     }
 
 @router.delete("/{hotel_id}")
-async def delete_hotel(hotel_id: int):
+async def delete_hotel(
+        hotel_id: int
+):
     async with async_session_maker() as session:
         await HotelsRepository(session).delete(id=hotel_id)
         await session.commit()
@@ -52,7 +58,10 @@ async def delete_hotel(hotel_id: int):
 
 
 @router.put("/{hotel_id}")
-async def update_hotel(hotel_id: int, hotel_data: HotelAdd):
+async def update_hotel(
+        hotel_id: int,
+        hotel_data: HotelAdd
+):
     async with async_session_maker() as session:
         await HotelsRepository(session).edit(hotel_data, id=hotel_id)
         await session.commit()

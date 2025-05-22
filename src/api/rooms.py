@@ -8,7 +8,9 @@ from src.schemas.rooms import RoomAdd, RoomPATCH, Room, RoomAddWithHotelId
 router = APIRouter(prefix='/hotels', tags=['Комнаты'])
 
 @router.get('/{hotel_id}/rooms')
-async def get_rooms(hotel_id: int) -> list[Room]:
+async def get_rooms(
+        hotel_id: int
+) -> list[Room]:
     async with async_session_maker() as session:
         hotel_rooms = await RoomsRepository(session).get_all(hotel_id=hotel_id)
         return hotel_rooms
