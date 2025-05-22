@@ -3,7 +3,7 @@ from fastapi import APIRouter, HTTPException
 from src.database import async_session_maker
 from src.repositories.hotels import HotelsRepository
 from src.repositories.rooms import RoomsRepository
-from src.schemas.rooms import RoomAdd, RoomPATCH, Room, RoomAddWithHotelId
+from src.schemas.rooms import RoomAdd, RoomPatch, Room, RoomAddWithHotelId
 
 router = APIRouter(prefix='/hotels', tags=['Комнаты'])
 
@@ -33,13 +33,12 @@ async def create_room(
         hotel_id: int,
         data: RoomAdd,
 ):
+    room_data = RoomAddWithHotelId(hotel_id=hotel_id, **data.model_dump(exclude_unset=True))
     async with async_session_maker() as session:
         hotel = await HotelsRepository(session).get_one_or_none(id=hotel_id)
         if hotel is None:
             raise HTTPException(status_code=404, detail="Hotel not found")
-        room_data = data.model_dump()
-        room_data["hotel_id"] = hotel_id
-        room = await RoomsRepository(session).add(RoomAddWithHotelId(**room_data))
+        room = await RoomsRepository(session).add(room_data)
         await session.commit()
 
         return {"data": room}
@@ -48,7 +47,7 @@ async def create_room(
 async def partially_change_room(
     hotel_id: int,
     room_id: int,
-    data: RoomPATCH
+    data: RoomPatch
 ):
     async with async_session_maker() as session:
         room = await RoomsRepository(session).get_one_or_none(id=room_id, hotel_id=hotel_id)

@@ -1,4 +1,4 @@
-from typing import Annotated
+from typing import Annotated, Optional
 
 from pydantic import BaseModel, Field, ConfigDict
 
@@ -25,11 +25,11 @@ class RoomAdd(RoomBase):
 class RoomAddWithHotelId(RoomAdd):
     hotel_id: HotelId
 
-class RoomPATCH(RoomBase):
-    title: Title | None = None
-    price: Price | None = None
-    quantity: Quantity | None = None
-    description: Description | None = None
+class RoomPatch(RoomBase):
+    title: Optional[Title] = None
+    price: Optional[Price] = None
+    quantity: Optional[Quantity] = None
+    description: Optional[Description] = None
 
 class Room(RoomAddWithHotelId):
     id: RoomId
