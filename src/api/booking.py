@@ -13,7 +13,7 @@ async def get_all_bookings(
     return await db.bookings.get_all()
 
 @router.get("/me")
-async def get_me(
+async def get_user_bookings(
         db: DBDep,
         user_id: UserIdDep,
 ):

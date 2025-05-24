@@ -27,7 +27,6 @@ class HotelsRepository(BaseRepository):
             .offset(offset)
         )
 
-        print(query.compile(compile_kwargs={"literal_binds": True}))
         result = await self.session.execute(query)
 
         return [self.schema.model_validate(model) for model in result.scalars().all()]
