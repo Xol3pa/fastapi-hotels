@@ -16,4 +16,4 @@ class BookingAdd(BookingDataRequest):
     price: int
 
 class Booking(BookingAdd):
-    pass
+    id: int
