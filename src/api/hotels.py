@@ -45,16 +45,6 @@ async def create_hotel(
         "success": "true", 'data': hotel
     }
 
-@router.delete("/{hotel_id}")
-async def delete_hotel(
-        db: DBDep,
-        hotel_id: int
-):
-    await db.hotels.delete(id=hotel_id)
-    await db.commit()
-
-    return {"success": "true"}
-
 
 @router.put("/{hotel_id}")
 async def update_hotel(
@@ -77,3 +67,15 @@ async def partially_change_hotel(
     await db.commit()
 
     return {"success": "true"}
+
+
+@router.delete("/{hotel_id}")
+async def delete_hotel(
+        db: DBDep,
+        hotel_id: int
+):
+    await db.hotels.delete(id=hotel_id)
+    await db.commit()
+
+    return {"success": "true"}
+
