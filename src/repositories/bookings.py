@@ -1,13 +1,13 @@
 from datetime import date
 from sqlalchemy import select
 
-from src.models.booking import BookingModel
+from src.models.bookings import BookingsModel
 from src.repositories.base import BaseRepository
 from src.schemas.booking import Booking
 
 
 class BookingsRepository(BaseRepository):
-    model = BookingModel
+    model = BookingsModel
     schema = Booking
 
     async def check_overlap(

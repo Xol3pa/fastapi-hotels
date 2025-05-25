@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException
 
 from src.api.dependencies import DBDep, UserIdDep
-from src.models.booking import BookingModel
+from src.models.bookings import BookingsModel
 from src.schemas.booking import BookingDataRequest, BookingAdd
 
 router = APIRouter(prefix="/bookings", tags=["Бронирование"])
@@ -39,7 +39,7 @@ async def create_booking(
         raise HTTPException(status_code=409, detail="Room is already booked for these dates")
 
 
-    booking_price = BookingModel(
+    booking_price = BookingsModel(
         date_from=booking_data.date_from,
         date_to=booking_data.date_to,
         price=room_data.price
