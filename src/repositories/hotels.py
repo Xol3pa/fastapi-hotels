@@ -1,4 +1,5 @@
 from datetime import date
+from typing import Optional
 
 from src.database import engine
 from src.models.rooms import RoomsModel
@@ -14,32 +15,36 @@ class HotelsRepository(BaseRepository):
     model = HotelsModel
     schema = Hotel
 
-    async def get_all(
-            self,
-            location,
-            title,
-            limit,
-            offset
-    ) -> list[Hotel]:
-        query = select(HotelsModel)
-        if location:
-            query = query.filter(func.lower(HotelsModel.location).contains(func.lower(location)))
-        if title:
-            query = query.filter(func.lower(HotelsModel.title).contains(func.lower(title)))
-        query = (
-            query
-            .limit(limit)
-            .offset(offset)
-        )
+    # async def get_all(
+    #         self,
+    #         location,
+    #         title,
+    #         limit,
+    #         offset
+    # ) -> list[Hotel]:
+    #     query = select(HotelsModel)
+    #     if location:
+    #         query = query.filter(func.lower(HotelsModel.location).contains(func.lower(location)))
+    #     if title:
+    #         query = query.filter(func.lower(HotelsModel.title).contains(func.lower(title)))
+    #     query = (
+    #         query
+    #         .limit(limit)
+    #         .offset(offset)
+    #     )
+    #
+    #     result = await self.session.execute(query)
+    #
+    #     return [self.schema.model_validate(model) for model in result.scalars().all()]
 
-        result = await self.session.execute(query)
-
-        return [self.schema.model_validate(model) for model in result.scalars().all()]
-
-    async def get_filtered_by_time(
+    async def get_filtered(
             self,
             date_from: date,
-            date_to: date
+            date_to: date,
+            location: Optional[str],
+            title: Optional[str],
+            limit: Optional[int],
+            offset: Optional[int]
     ) -> list[Hotel]:
         """
         WITH rooms_booked_table AS (
@@ -91,6 +96,16 @@ class HotelsRepository(BaseRepository):
                     available_rooms
                 )
             )
+        )
+        if location:
+            query = query.filter(func.lower(HotelsModel.location).contains(func.lower(location)))
+        if title:
+            query = query.filter(func.lower(HotelsModel.title).contains(func.lower(title)))
+
+        query = (
+            query
+            .limit(limit)
+            .offset(offset)
         )
 
         print(query.compile(bind=engine, compile_kwargs={"literal_binds": True}))
