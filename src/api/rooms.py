@@ -3,7 +3,7 @@ from fastapi import APIRouter, HTTPException, Query
 
 from src.api.dependencies import DBDep
 from src.schemas.facilities import RoomFacilityCreate
-from src.schemas.rooms import RoomCreate, RoomUpdate, Room, RoomCreateWithHotel
+from src.schemas.rooms import RoomCreate, RoomUpdate, Room, RoomCreateWithHotel, RoomCreateDB, RoomUpdateDB
 
 router = APIRouter(prefix='/hotels', tags=['Комнаты'])
 
@@ -33,20 +33,13 @@ async def get_room_by_id(
         raise HTTPException(status_code=404, detail="Room not found")
     return room
 
-
 @router.post('/{hotel_id}/rooms')
 async def create_room(
         db: DBDep,
         hotel_id: int,
         data: RoomCreate,
 ):
-    room_data = RoomCreateWithHotel(
-        hotel_id=hotel_id,
-        title=data.title,
-        price=data.price,
-        quantity=data.quantity,
-        description=data.description
-    )
+    room_data = RoomCreateWithHotel(hotel_id=hotel_id, **data.model_dump())
     hotel = await db.hotels.get_one_or_none(id=hotel_id)
     if hotel is None:
         raise HTTPException(status_code=404, detail="Hotel not found")
@@ -54,11 +47,11 @@ async def create_room(
     room = await db.rooms.add(room_data)
     
     if data.facilities_ids:
-        rooms_facilities_data = [
+        room_facilities_data = [
             RoomFacilityCreate(room_id=room.id, facility_id=facility_id) 
             for facility_id in data.facilities_ids
         ]
-        await db.rooms_facilities.add_bulk(rooms_facilities_data)
+        await db.rooms_facilities.add_bulk(room_facilities_data)
     
     await db.commit()
 
@@ -74,7 +67,17 @@ async def change_room(
     room = await db.rooms.get_one_or_none(id=room_id, hotel_id=hotel_id)
     if room is None:
         raise HTTPException(status_code=404, detail="Room not found")
-    await db.rooms.edit(data=data, id=room_id, hotel_id=hotel_id)
+
+    new_room_data = RoomCreateDB(**data.model_dump())
+
+    await db.rooms.edit(data=new_room_data, id=room_id, hotel_id=hotel_id)
+
+    if data.facilities_ids is not None:
+        await db.rooms_facilities.partially_edit(
+            room_id=room_id,
+            data=data.facilities_ids,
+        )
+
     await db.commit()
 
     return {"success": True}
@@ -89,7 +92,23 @@ async def partially_change_room(
     room = await db.rooms.get_one_or_none(id=room_id, hotel_id=hotel_id)
     if room is None:
         raise HTTPException(status_code=404, detail="Room not found")
-    await db.rooms.edit(data=data, exclude_unset=True, id=room_id, hotel_id=hotel_id)
+
+    room_data = RoomUpdateDB(**data.model_dump(exclude_unset=True))
+
+    if room_data:
+        await db.rooms.edit(
+            data=room_data,
+            exclude_unset=True,
+            id=room_id,
+            hotel_id=hotel_id
+        )
+
+    if data.facilities_ids is not None:
+        await db.rooms_facilities.partially_edit(
+            room_id=room_id,
+            data=data.facilities_ids,
+        )
+
     await db.commit()
 
     return {"success": True}

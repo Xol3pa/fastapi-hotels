@@ -1,12 +1,14 @@
 from datetime import date
-from sqlalchemy import select
+
+from pydantic import BaseModel
+from sqlalchemy import select, update
 from sqlalchemy.sql.functions import coalesce
 
 from src.database import engine
 from src.repositories.base import BaseRepository
 from src.models.rooms import RoomsModel
 from src.repositories.utils import rooms_booked_table_query
-from src.schemas.rooms import Room
+from src.schemas.rooms import Room, RoomUpdateDB
 
 
 class RoomsRepository(BaseRepository):
@@ -84,5 +86,3 @@ class RoomsRepository(BaseRepository):
 
         result = await self.session.execute(query)
         return [self.schema.model_validate(row) for row in result.mappings().all()]
-
-

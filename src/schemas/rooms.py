@@ -9,25 +9,32 @@ class RoomCreate(BaseCreateSchema):
     title: str = Field(..., description="Название комнаты")
     price: int = Field(..., gt=0, description="Цена за ночь")
     quantity: int = Field(..., gt=0, description="Количество комнат")
-    description: str = Field(..., description="Описание комнаты")
-    facilities_ids: list[int] = Field(default=[], description="Список ID удобств")
+    description: Optional[str] = Field(None, description="Описание комнаты")
+    facilities_ids: Optional[list[int]] = Field(None, description="Список ID удобств")
 
 
-class RoomCreateWithHotel(BaseCreateSchema):
-    """Схема для создания комнаты с привязкой к отелю для БД"""
-    hotel_id: int = Field(..., description="ID отеля")
+class RoomCreateDB(BaseCreateSchema):
     title: str = Field(..., description="Название комнаты")
     price: int = Field(..., gt=0, description="Цена за ночь")
     quantity: int = Field(..., gt=0, description="Количество комнат")
-    description: str = Field(..., description="Описание комнаты")
+    description: Optional[str] = Field(None, description="Описание комнаты")
 
 
-class RoomUpdate(BaseUpdateSchema):
+class RoomCreateWithHotel(RoomCreateDB):
+    """Схема для создания комнаты с привязкой к отелю для БД"""
+    hotel_id: int = Field(..., description="ID отеля")
+
+
+class RoomUpdateDB(BaseUpdateSchema):
     """Схема для обновления комнаты"""
     title: Optional[str] = Field(None, description="Название комнаты")
     price: Optional[int] = Field(None, gt=0, description="Цена за ночь")
     quantity: Optional[int] = Field(None, gt=0, description="Количество комнат")
     description: Optional[str] = Field(None, description="Описание комнаты")
+
+
+class RoomUpdate(RoomUpdateDB):
+    facilities_ids: Optional[list[int]] = Field(None, description="Список ID удобств")
 
 
 class Room(BaseResponseSchema):
