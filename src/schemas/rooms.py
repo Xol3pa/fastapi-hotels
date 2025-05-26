@@ -2,6 +2,7 @@ from typing import Optional
 from pydantic import Field
 
 from . import BaseCreateSchema, BaseResponseSchema, BaseUpdateSchema
+from .facilities import Facility
 
 
 class RoomCreate(BaseCreateSchema):
@@ -43,4 +44,8 @@ class Room(BaseResponseSchema):
     title: str = Field(..., description="Название комнаты")
     price: int = Field(..., description="Цена за ночь")
     quantity: int = Field(..., description="Количество комнат")
-    description: str = Field(..., description="Описание комнаты")
+    description: Optional[str] = Field(None, description="Описание комнаты")
+
+
+class RoomsWithRels(Room):
+    facilities: list[Facility]

@@ -3,7 +3,7 @@ from fastapi import APIRouter, HTTPException, Query
 
 from src.api.dependencies import DBDep
 from src.schemas.facilities import RoomFacilityCreate
-from src.schemas.rooms import RoomCreate, RoomUpdate, Room, RoomCreateWithHotel, RoomCreateDB, RoomUpdateDB
+from src.schemas.rooms import RoomCreate, RoomUpdate, RoomCreateWithHotel, RoomCreateDB, RoomUpdateDB, RoomsWithRels
 
 router = APIRouter(prefix='/hotels', tags=['Комнаты'])
 
@@ -13,8 +13,8 @@ async def get_rooms(
         hotel_id: int,
         date_from: date = Query(example='2025-05-01'),
         date_to: date = Query(example='2025-05-01'),
-) -> list[Room]:
-    hotel_rooms = await db.rooms.get_filtered_by_time(
+) -> list[RoomsWithRels]:
+    hotel_rooms = await db.rooms.get_filtered(
         hotel_id=hotel_id,
         date_from=date_from,
         date_to=date_to,

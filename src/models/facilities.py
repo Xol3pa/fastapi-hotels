@@ -1,17 +1,22 @@
 from sqlalchemy import String, ForeignKey
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.database import Base
 
 
-class Facilities(Base):
+class FacilitiesModel(Base):
     __tablename__ = "facilities"
 
     id: Mapped[int] = mapped_column(primary_key=True)
     title: Mapped[str] = mapped_column(String(50))
 
+    rooms: Mapped[list["RoomsModel"]] = relationship(
+        secondary="rooms_facilities",
+        back_populates="facilities"
+    )
 
-class RoomsFacilities(Base):
+
+class RoomsFacilitiesModel(Base):
     __tablename__ = "rooms_facilities"
 
     id: Mapped[int] = mapped_column(primary_key=True)
