@@ -1,19 +1,29 @@
-from pydantic import BaseModel, ConfigDict
 from datetime import date
+from pydantic import Field
+
+from . import BaseCreateSchema, BaseResponseSchema
 
 
-class BookingBase(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
-
-class BookingDataRequest(BookingBase):
-    room_id: int
-    date_from: date
-    date_to: date
+class BookingCreate(BaseCreateSchema):
+    """Схема для создания бронирования через API"""
+    room_id: int = Field(..., description="ID комнаты")
+    date_from: date = Field(..., description="Дата заезда")
+    date_to: date = Field(..., description="Дата выезда")
 
 
-class BookingAdd(BookingDataRequest):
-    user_id: int
-    price: int
+class BookingCreateDB(BaseCreateSchema):
+    """Схема для создания бронирования в БД"""
+    user_id: int = Field(..., description="ID пользователя")
+    room_id: int = Field(..., description="ID комнаты")
+    date_from: date = Field(..., description="Дата заезда")
+    date_to: date = Field(..., description="Дата выезда")
+    price: int = Field(..., gt=0, description="Общая стоимость")
 
-class Booking(BookingAdd):
-    id: int
+
+class Booking(BaseResponseSchema):
+    """Схема бронирования для ответа"""
+    user_id: int = Field(..., description="ID пользователя")
+    room_id: int = Field(..., description="ID комнаты")
+    date_from: date = Field(..., description="Дата заезда")
+    date_to: date = Field(..., description="Дата выезда")
+    price: int = Field(..., description="Общая стоимость")

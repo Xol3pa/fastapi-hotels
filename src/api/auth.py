@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, Response
 
 from src.api.dependencies import UserIdDep, DBDep
-from src.schemas.users import UserRequestAdd, UserAdd
+from src.schemas.users import UserCreate, UserCreateDB
 from src.services.auth import AuthService
 
 
@@ -11,10 +11,10 @@ router = APIRouter(prefix="/auth", tags=["Авторизация и аутент
 @router.post("/register")
 async def register_user(
         db: DBDep,
-        data: UserRequestAdd,
+        data: UserCreate,
 ):
     hashed_password = AuthService().hask_password(data.password)
-    new_user_data = UserAdd(email=data.email, hashed_password=hashed_password)
+    new_user_data = UserCreateDB(email=data.email, hashed_password=hashed_password)
     await db.users.add(data=new_user_data)
     await db.commit()
 
@@ -23,7 +23,7 @@ async def register_user(
 @router.post('/login')
 async def login_user(
         db: DBDep,
-        data: UserRequestAdd,
+        data: UserCreate,
         response: Response
 ):
     user = await db.users.get_user_with_hashed_password(email=data.email)

@@ -2,7 +2,7 @@ from datetime import date
 
 from fastapi import APIRouter, Query, HTTPException
 
-from src.schemas.hotels import HotelPATCH, HotelAdd
+from src.schemas.hotels import HotelUpdate, HotelCreate
 from src.api.dependencies import PaginationDep, DBDep
 
 router = APIRouter(prefix='/hotels', tags=['Отели'])
@@ -42,7 +42,7 @@ async def get_hotel_by_id(
 @router.post("")
 async def create_hotel(
         db: DBDep,
-        hotel_data: HotelAdd
+        hotel_data: HotelCreate
 ):
     hotel = await db.hotels.add(hotel_data)
     await db.commit()
@@ -56,7 +56,7 @@ async def create_hotel(
 async def update_hotel(
         db: DBDep,
         hotel_id: int,
-        hotel_data: HotelAdd
+        hotel_data: HotelCreate
 ):
     await db.hotels.edit(hotel_data, id=hotel_id)
     await db.commit()
@@ -67,7 +67,7 @@ async def update_hotel(
 async def partially_change_hotel(
         db: DBDep,
         hotel_id: int,
-        hotel_data: HotelPATCH
+        hotel_data: HotelUpdate
 ):
     await db.hotels.edit(hotel_data, exclude_unset=True, id=hotel_id)
     await db.commit()

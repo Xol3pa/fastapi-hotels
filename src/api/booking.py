@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException
 
 from src.api.dependencies import DBDep, UserIdDep
 from src.models.bookings import BookingsModel
-from src.schemas.booking import BookingDataRequest, BookingAdd
+from src.schemas.booking import BookingCreate, BookingCreateDB
 
 router = APIRouter(prefix="/bookings", tags=["Бронирование"])
 
@@ -22,7 +22,7 @@ async def get_user_bookings(
 @router.post("")
 async def create_booking(
         db: DBDep,
-        booking_data: BookingDataRequest,
+        booking_data: BookingCreate,
         user_id: UserIdDep
 ):
     room_data = await db.rooms.get_one_or_none(id=booking_data.room_id)
@@ -45,7 +45,7 @@ async def create_booking(
         price=room_data.price
     ).total_cost
 
-    booking = await db.bookings.add(BookingAdd(
+    booking = await db.bookings.add(BookingCreateDB(
         user_id=user_id,
         price=booking_price,
         **booking_data.model_dump()

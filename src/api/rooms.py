@@ -1,10 +1,9 @@
 from datetime import date
-from tkinter.scrolledtext import example
-
 from fastapi import APIRouter, HTTPException, Query
 
 from src.api.dependencies import DBDep
-from src.schemas.rooms import RoomAdd, RoomPatch, Room, RoomAddWithHotelId
+from src.schemas.facilities import RoomFacilityCreate
+from src.schemas.rooms import RoomCreate, RoomUpdate, Room, RoomCreateWithHotel
 
 router = APIRouter(prefix='/hotels', tags=['Комнаты'])
 
@@ -39,13 +38,28 @@ async def get_room_by_id(
 async def create_room(
         db: DBDep,
         hotel_id: int,
-        data: RoomAdd,
+        data: RoomCreate,
 ):
-    room_data = RoomAddWithHotelId(hotel_id=hotel_id, **data.model_dump(exclude_unset=True))
+    room_data = RoomCreateWithHotel(
+        hotel_id=hotel_id,
+        title=data.title,
+        price=data.price,
+        quantity=data.quantity,
+        description=data.description
+    )
     hotel = await db.hotels.get_one_or_none(id=hotel_id)
     if hotel is None:
         raise HTTPException(status_code=404, detail="Hotel not found")
+    
     room = await db.rooms.add(room_data)
+    
+    if data.facilities_ids:
+        rooms_facilities_data = [
+            RoomFacilityCreate(room_id=room.id, facility_id=facility_id) 
+            for facility_id in data.facilities_ids
+        ]
+        await db.rooms_facilities.add_bulk(rooms_facilities_data)
+    
     await db.commit()
 
     return {"data": room}
@@ -55,7 +69,7 @@ async def change_room(
         db: DBDep,
         hotel_id: int,
         room_id: int,
-        data: RoomAdd
+        data: RoomCreate
 ):
     room = await db.rooms.get_one_or_none(id=room_id, hotel_id=hotel_id)
     if room is None:
@@ -70,7 +84,7 @@ async def partially_change_room(
         db: DBDep,
         hotel_id: int,
         room_id: int,
-        data: RoomPatch
+        data: RoomUpdate
 ):
     room = await db.rooms.get_one_or_none(id=room_id, hotel_id=hotel_id)
     if room is None:

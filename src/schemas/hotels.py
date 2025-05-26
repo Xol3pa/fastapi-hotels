@@ -1,15 +1,22 @@
-from pydantic import BaseModel, Field, ConfigDict
+from typing import Optional
+from pydantic import Field
+
+from . import BaseCreateSchema, BaseResponseSchema, BaseUpdateSchema
 
 
-class HotelAdd(BaseModel):
-    title: str
-    location: str
+class HotelCreate(BaseCreateSchema):
+    """Схема для создания отеля"""
+    title: str = Field(..., description="Название отеля")
+    location: str = Field(..., description="Местоположение отеля")
 
-    model_config = ConfigDict(from_attributes=True)
 
-class Hotel(HotelAdd):
-    id: int
+class HotelUpdate(BaseUpdateSchema):
+    """Схема для обновления отеля"""
+    title: Optional[str] = Field(None, description="Название отеля")
+    location: Optional[str] = Field(None, description="Местоположение отеля")
 
-class HotelPATCH(BaseModel):
-    title: str | None = Field(None, description="Hotel title"),
-    location: str | None = Field(None, description="Hotel location"),
+
+class Hotel(BaseResponseSchema):
+    """Схема отеля для ответа"""
+    title: str = Field(..., description="Название отеля")
+    location: str = Field(..., description="Местоположение отеля")

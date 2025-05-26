@@ -1,35 +1,39 @@
-from typing import Annotated, Optional
+from typing import Optional
+from pydantic import Field
 
-from pydantic import BaseModel, Field, ConfigDict
-
-
-HotelId = Annotated[int, Field(..., description="Hotel ID")]
-RoomId = Annotated[int, Field(..., description="Room ID")]
-Title = Annotated[str, Field(description="Room title")]
-Price = Annotated[int, Field(description="Room price")]
-Quantity = Annotated[int, Field(description="Room quantity")]
-Description = Annotated[str, Field(description="Room description")]
+from . import BaseCreateSchema, BaseResponseSchema, BaseUpdateSchema
 
 
-class RoomBase(BaseModel):
-    title: Title = Field(...)
-    price: Price = Field(...)
-    quantity: Quantity = Field(...)
-    description: Description = Field(...)
+class RoomCreate(BaseCreateSchema):
+    """Схема для создания комнаты"""
+    title: str = Field(..., description="Название комнаты")
+    price: int = Field(..., gt=0, description="Цена за ночь")
+    quantity: int = Field(..., gt=0, description="Количество комнат")
+    description: str = Field(..., description="Описание комнаты")
+    facilities_ids: list[int] = Field(default=[], description="Список ID удобств")
 
-    model_config = ConfigDict(from_attributes=True)
 
-class RoomAdd(RoomBase):
-    pass
+class RoomCreateWithHotel(BaseCreateSchema):
+    """Схема для создания комнаты с привязкой к отелю для БД"""
+    hotel_id: int = Field(..., description="ID отеля")
+    title: str = Field(..., description="Название комнаты")
+    price: int = Field(..., gt=0, description="Цена за ночь")
+    quantity: int = Field(..., gt=0, description="Количество комнат")
+    description: str = Field(..., description="Описание комнаты")
 
-class RoomAddWithHotelId(RoomAdd):
-    hotel_id: HotelId
 
-class RoomPatch(RoomBase):
-    title: Optional[Title] = None
-    price: Optional[Price] = None
-    quantity: Optional[Quantity] = None
-    description: Optional[Description] = None
+class RoomUpdate(BaseUpdateSchema):
+    """Схема для обновления комнаты"""
+    title: Optional[str] = Field(None, description="Название комнаты")
+    price: Optional[int] = Field(None, gt=0, description="Цена за ночь")
+    quantity: Optional[int] = Field(None, gt=0, description="Количество комнат")
+    description: Optional[str] = Field(None, description="Описание комнаты")
 
-class Room(RoomAddWithHotelId):
-    id: RoomId
+
+class Room(BaseResponseSchema):
+    """Схема комнаты для ответа"""
+    hotel_id: int = Field(..., description="ID отеля")
+    title: str = Field(..., description="Название комнаты")
+    price: int = Field(..., description="Цена за ночь")
+    quantity: int = Field(..., description="Количество комнат")
+    description: str = Field(..., description="Описание комнаты")
