@@ -70,14 +70,14 @@ async def change_room(
 
     new_room_data = RoomCreateDB(**data.model_dump())
 
-    await db.rooms.edit(data=new_room_data, id=room_id, hotel_id=hotel_id)
-
-    if data.facilities_ids is not None:
-        await db.rooms_facilities.partially_edit(
-            room_id=room_id,
-            data=data.facilities_ids,
-        )
-
+    await db.rooms.edit(
+        data=new_room_data,
+        id=room_id,
+        hotel_id=hotel_id)
+    await db.rooms_facilities.partially_edit(
+        room_id=room_id,
+        data=data.facilities_ids,
+    )
     await db.commit()
 
     return {"success": True}
@@ -103,7 +103,7 @@ async def partially_change_room(
             hotel_id=hotel_id
         )
 
-    if data.facilities_ids is not None:
+    if data.facilities_ids:
         await db.rooms_facilities.partially_edit(
             room_id=room_id,
             data=data.facilities_ids,

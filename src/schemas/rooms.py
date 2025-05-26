@@ -10,7 +10,7 @@ class RoomCreate(BaseCreateSchema):
     price: int = Field(..., gt=0, description="Цена за ночь")
     quantity: int = Field(..., gt=0, description="Количество комнат")
     description: Optional[str] = Field(None, description="Описание комнаты")
-    facilities_ids: Optional[list[int]] = Field(None, description="Список ID удобств")
+    facilities_ids: list[int] = Field([], description="Список ID удобств")
 
 
 class RoomCreateDB(BaseCreateSchema):
@@ -34,7 +34,7 @@ class RoomUpdateDB(BaseUpdateSchema):
 
 
 class RoomUpdate(RoomUpdateDB):
-    facilities_ids: Optional[list[int]] = Field(None, description="Список ID удобств")
+    facilities_ids: list[int] = Field([], description="Список ID удобств")
 
 
 class Room(BaseResponseSchema):

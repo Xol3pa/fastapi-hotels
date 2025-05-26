@@ -1,3 +1,5 @@
+from sqlalchemy import select
+
 from src.models.facilities import Facilities, RoomsFacilities
 from src.repositories.base import BaseRepository
 from src.schemas.facilities import Facility, RoomFacility, RoomFacilityCreate
@@ -15,11 +17,15 @@ class RoomsFacilitiesRepository(BaseRepository):
     async def partially_edit(
             self,
             room_id: int,
-            data: list[int]
+            facilities_ids: list[int]
     ):
-        current_facilities = await self.get_filtered(room_id=room_id)
-        current_facilities_ids = {item.facility_id for item in current_facilities}
-        new_facilities = set(data or [])
+        get_current_facilities_ids_query = (
+            select(self.model.facility_id)
+            .filter_by(room_id=room_id)
+        )
+        result = await self.session.execute(get_current_facilities_ids_query)
+        current_facilities_ids = set(result.scalars().all())
+        new_facilities = set(facilities_ids)
 
         to_add = new_facilities - current_facilities_ids
         to_remove = current_facilities_ids - new_facilities
