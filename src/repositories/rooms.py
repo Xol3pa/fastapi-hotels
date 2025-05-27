@@ -15,7 +15,7 @@ class RoomsRepository(BaseRepository):
     model = RoomsModel
     schema = Room
 
-    async def get_filtered(
+    async def get_filtered_by_time(
             self,
             hotel_id: int,
             date_from: date,
@@ -46,3 +46,18 @@ class RoomsRepository(BaseRepository):
 
         result = await self.session.execute(query)
         return [RoomsWithRels.model_validate(room) for room in result.scalars().all()]
+
+    async def get_one_or_none(
+            self,
+            **filter_by
+    ):
+        query = (
+            select(self.model)
+            .select_from(self.model)
+            .options(selectinload(self.model.facilities))
+            .filter_by(**filter_by)
+        )
+        result = await self.session.execute(query)
+        model = result.scalars().one_or_none()
+
+        return RoomsWithRels.model_validate(model)

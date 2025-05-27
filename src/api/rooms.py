@@ -14,7 +14,7 @@ async def get_rooms(
         date_from: date = Query(example='2025-05-01'),
         date_to: date = Query(example='2025-05-01'),
 ) -> list[RoomsWithRels]:
-    hotel_rooms = await db.rooms.get_filtered(
+    hotel_rooms = await db.rooms.get_filtered_by_time(
         hotel_id=hotel_id,
         date_from=date_from,
         date_to=date_to,
@@ -27,7 +27,7 @@ async def get_room_by_id(
         db: DBDep,
         room_id: int,
         hotel_id: int,
-):
+) -> RoomsWithRels:
     room = await db.rooms.get_one_or_none(id=room_id, hotel_id=hotel_id)
     if not room:
         raise HTTPException(status_code=404, detail="Room not found")
