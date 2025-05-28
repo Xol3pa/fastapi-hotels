@@ -7,13 +7,14 @@ from sqlalchemy.sql.functions import coalesce
 from src.database import engine
 from src.repositories.base import BaseRepository
 from src.models.rooms import RoomsModel
+from src.repositories.mappers.mappers import RoomDataMapper, RoomsWithRelsDataMapper
 from src.repositories.utils import rooms_booked_table_query
 from src.schemas.rooms import Room, RoomsWithRels
 
 
 class RoomsRepository(BaseRepository):
     model = RoomsModel
-    schema = Room
+    mapper = RoomDataMapper
 
     async def get_filtered_by_time(
             self,
@@ -45,7 +46,7 @@ class RoomsRepository(BaseRepository):
         print(query.compile(bind=engine, compile_kwargs={"literal_binds": True}))
 
         result = await self.session.execute(query)
-        return [RoomsWithRels.model_validate(room) for room in result.scalars().all()]
+        return [RoomsWithRelsDataMapper.map_to_domain_entity(room) for room in result.scalars().all()]
 
     async def get_one_or_none(
             self,
@@ -60,4 +61,4 @@ class RoomsRepository(BaseRepository):
         result = await self.session.execute(query)
         model = result.scalars().one_or_none()
 
-        return RoomsWithRels.model_validate(model)
+        return RoomsWithRelsDataMapper.map_to_domain_entity(model)

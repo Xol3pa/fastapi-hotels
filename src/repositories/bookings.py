@@ -3,12 +3,12 @@ from sqlalchemy import select
 
 from src.models.bookings import BookingsModel
 from src.repositories.base import BaseRepository
-from src.schemas.booking import Booking
+from src.repositories.mappers.mappers import BookingDataMapper
 
 
 class BookingsRepository(BaseRepository):
     model = BookingsModel
-    schema = Booking
+    mapper = BookingDataMapper
 
     async def check_overlap(
             self,
@@ -28,4 +28,4 @@ class BookingsRepository(BaseRepository):
         if model is None:
             return None
 
-        return self.schema.model_validate(model)
+        return self.mapper.map_to_domain_entity(model)

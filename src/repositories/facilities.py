@@ -2,17 +2,18 @@ from sqlalchemy import select
 
 from src.models.facilities import FacilitiesModel, RoomsFacilitiesModel
 from src.repositories.base import BaseRepository
-from src.schemas.facilities import Facility, RoomFacility, RoomFacilityCreate
+from src.repositories.mappers.mappers import FacilityDataMapper, RoomFacilityDataMapper
+from src.schemas.facilities import RoomFacilityCreate
 
 
 class FacilitiesRepository(BaseRepository):
     model = FacilitiesModel
-    schema = Facility
+    mapper = FacilityDataMapper
 
 
 class RoomsFacilitiesRepository(BaseRepository):
     model = RoomsFacilitiesModel
-    schema = RoomFacility
+    mapper = RoomFacilityDataMapper
 
     async def partially_edit(
             self,

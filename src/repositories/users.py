@@ -3,12 +3,13 @@ from sqlalchemy import select
 
 from src.repositories.base import BaseRepository
 from src.models.users import UsersModel
-from src.schemas.users import User, UserWithPassword
+from src.repositories.mappers.mappers import UserDataMapper, UserWithPasswordDataMapper
+from src.schemas.users import UserWithPassword
 
 
 class UsersRepository(BaseRepository):
     model = UsersModel
-    schema = User
+    mapper = UserDataMapper
 
     async def get_user_with_hashed_password(
             self,
@@ -20,5 +21,5 @@ class UsersRepository(BaseRepository):
         if model is None:
             return None
 
-        return UserWithPassword.model_validate(model)
+        return UserWithPasswordDataMapper.map_to_domain_entity(model)
 
