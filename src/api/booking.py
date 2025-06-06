@@ -1,4 +1,5 @@
 from fastapi import APIRouter, HTTPException
+from fastapi_cache.decorator import cache
 
 from src.api.dependencies import DBDep, UserIdDep
 from src.models.bookings import BookingsModel
@@ -7,6 +8,7 @@ from src.schemas.booking import BookingCreate, BookingCreateDB
 router = APIRouter(prefix="/bookings", tags=["Бронирование"])
 
 @router.get("")
+@cache(expire=10)
 async def get_all_bookings(
         db: DBDep,
 ):
