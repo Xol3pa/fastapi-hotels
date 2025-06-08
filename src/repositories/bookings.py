@@ -1,14 +1,29 @@
 from datetime import date
+from typing import List, Optional
+
 from sqlalchemy import select
 
 from src.models.bookings import BookingsModel
 from src.repositories.base import BaseRepository
 from src.repositories.mappers.mappers import BookingDataMapper
+from src.schemas.booking import Booking, BookingCreateDB
 
 
 class BookingsRepository(BaseRepository):
     model = BookingsModel
     mapper = BookingDataMapper
+
+    async def get_all(self, *args, **kwargs) -> List[Booking]:
+        return await super().get_all(*args, **kwargs)
+
+    async def get_one_or_none(self, **filter_by) -> Optional[Booking]:
+        return await super().get_one_or_none(**filter_by)
+
+    async def get_filtered(self, *filter, **filter_by) -> List[Booking]:
+        return await super().get_filtered(*filter_by, **filter_by)
+
+    async def add(self, data: BookingCreateDB) -> Optional[Booking]:
+        return await super().add(data)
 
     async def check_overlap(
             self,

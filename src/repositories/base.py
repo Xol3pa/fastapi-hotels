@@ -1,3 +1,5 @@
+from typing import Optional, List, Any
+
 from pydantic import BaseModel
 from sqlalchemy import select, insert, update, delete
 
@@ -11,12 +13,12 @@ class BaseRepository:
     def __init__(self, session):
         self.session = session
 
-    async def get_all(self, *args, **kwargs):
+    async def get_all(self, *args, **kwargs) -> List[Any]:
         query = select(self.model)
         result = await self.session.execute(query)
         return [self.mapper.map_to_domain_entity(model) for model in result.scalars().all()]
 
-    async def get_filtered(self, *filter, **filter_by):
+    async def get_filtered(self, *filter, **filter_by) -> List[Any]:
         query = (
             select(self.model)
             .filter(*filter)
@@ -25,7 +27,7 @@ class BaseRepository:
         result = await self.session.execute(query)
         return [self.mapper.map_to_domain_entity(model) for model in result.scalars().all()]
 
-    async def get_one_or_none(self, **filter_by):
+    async def get_one_or_none(self, **filter_by) -> Optional[Any]:
         query = select(self.model).filter_by(**filter_by)
         result = await self.session.execute(query)
         model = result.scalars().one_or_none()
@@ -34,7 +36,7 @@ class BaseRepository:
 
         return self.mapper.map_to_domain_entity(model)
 
-    async def add(self, data: BaseModel):
+    async def add(self, data: BaseModel) -> Optional[Any]:
         add_data_stmt = (
             insert(self.model)
             .values(**data.model_dump())
@@ -45,7 +47,7 @@ class BaseRepository:
 
         return self.mapper.map_to_domain_entity(model)
 
-    async def add_bulk(self, data: list[BaseModel]):
+    async def add_bulk(self, data: list[BaseModel]) -> None:
         add_data_stmt = (
             insert(self.model)
             .values([item.model_dump() for item in data])

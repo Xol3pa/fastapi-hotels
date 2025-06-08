@@ -1,4 +1,5 @@
 from datetime import date
+from typing import List, Optional
 
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
@@ -9,12 +10,21 @@ from src.repositories.base import BaseRepository
 from src.models.rooms import RoomsModel
 from src.repositories.mappers.mappers import RoomDataMapper, RoomsWithRelsDataMapper
 from src.repositories.utils import rooms_booked_table_query
-from src.schemas.rooms import Room, RoomsWithRels
+from src.schemas.rooms import Room, RoomsWithRels, RoomCreateDB
 
 
 class RoomsRepository(BaseRepository):
     model = RoomsModel
     mapper = RoomDataMapper
+
+    async def get_all(self, *args, **kwargs) -> List[Room]:
+        return await super().get_all(*args, **kwargs)
+
+    async def get_filtered(self, *filter, **filter_by) -> List[Room]:
+        return await super().get_filtered(*filter_by, **filter_by)
+
+    async def add(self, data: RoomCreateDB) -> Optional[Room]:
+        return await super().add(data)
 
     async def get_filtered_by_time(
             self,
@@ -51,7 +61,7 @@ class RoomsRepository(BaseRepository):
     async def get_one_or_none(
             self,
             **filter_by
-    ):
+    ) -> Optional[Room]:
         query = (
             select(self.model)
             .select_from(self.model)
