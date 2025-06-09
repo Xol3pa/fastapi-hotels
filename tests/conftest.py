@@ -96,4 +96,4 @@ async def auth_ac(ac, register_user):
     assert response.status_code in [200, 201]
     assert 'access_token' in response.cookies
 
-    return ac
+    yield ac
