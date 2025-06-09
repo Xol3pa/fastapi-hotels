@@ -31,14 +31,14 @@ async def create_booking(
     if room_data is None:
         raise HTTPException(status_code=404, detail="Room not found")
 
-    overlapping_booking = await db.bookings.check_overlap(
+    availability_rooms = await db.bookings.check_availability(
         room_id=room_data.id,
         date_from=booking_data.date_from,
         date_to=booking_data.date_to,
     )
 
-    if overlapping_booking:
-        raise HTTPException(status_code=409, detail="Room is already booked for these dates")
+    if not availability_rooms:
+        raise HTTPException(status_code=409, detail="Rooms is already booked for these dates")
 
 
     booking_price = BookingsModel(

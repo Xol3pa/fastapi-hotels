@@ -1,11 +1,13 @@
 from datetime import date
 from typing import List, Optional
 
-from sqlalchemy import select
+from sqlalchemy import select, func
 
+from src.models import RoomsModel
 from src.models.bookings import BookingsModel
 from src.repositories.base import BaseRepository
 from src.repositories.mappers.mappers import BookingDataMapper
+from src.repositories.utils import rooms_booked_table_query
 from src.schemas.booking import Booking, BookingCreateDB
 
 
@@ -25,25 +27,29 @@ class BookingsRepository(BaseRepository):
     async def add(self, data: BookingCreateDB) -> Optional[Booking]:
         return await super().add(data)
 
-    async def check_overlap(
+    async def check_availability(
             self,
             room_id: int,
             date_from: date,
             date_to: date,
     ):
-        query = select(self.model).where(
-            self.model.room_id == room_id,
-            self.model.date_from <= date_to,
-            self.model.date_to >= date_from,
+        rooms_booked_table = rooms_booked_table_query(
+            date_from=date_from,
+            date_to=date_to,
+        )
+
+        query = (
+            select(1)
+            .select_from(RoomsModel)
+            .outerjoin(rooms_booked_table, RoomsModel.id == rooms_booked_table.c.room_id)
+            .where(
+                RoomsModel.id == room_id,
+                RoomsModel.quantity - func.coalesce(rooms_booked_table.c.booked_rooms, 0) > 0
+            )
         )
 
         result = await self.session.execute(query)
-        model = result.scalars().one_or_none()
-
-        if model is None:
-            return None
-
-        return self.mapper.map_to_domain_entity(model)
+        return result.scalar() is not None
 
     async def get_bookings_with_today_checkin(self):
         query = (

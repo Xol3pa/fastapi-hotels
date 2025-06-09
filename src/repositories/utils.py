@@ -10,10 +10,10 @@ def rooms_booked_table_query(
 ):
     """
     with rooms_booked_table as (
-    select bookings.room_id, count(*) as booked_rooms
-    from bookings
-    where bookings.date_from <= '2025-01-03' and bookings.date_to >= '2025-01-01'
-    group by bookings.room_id
+        select bookings.room_id, count(*) as booked_rooms
+        from bookings
+        where bookings.date_from <= '2025-01-03' and bookings.date_to >= '2025-01-01'
+        group by bookings.room_id
     )
     """
 
