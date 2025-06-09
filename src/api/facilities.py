@@ -3,13 +3,12 @@ from fastapi_cache.decorator import cache
 
 from src.api.dependencies import DBDep
 from src.schemas.facilities import FacilityCreate
-from src.tasks.tasks import test_task
 
 router = APIRouter(prefix="/facilities", tags=["Удобства"])
 
 
 @router.get("")
-# @cache(expire=10)
+@cache(expire=10)
 async def get_all_facilities(
         db: DBDep
 ):

@@ -17,6 +17,6 @@ async def test_get_all_facilities(ac):
         "/facilities",
     )
 
-    # assert response.json() is not None
 
+    assert isinstance(response.json(), list)
     assert response.status_code in [200, 201]

@@ -1,4 +1,8 @@
 import json
+from unittest import mock
+
+mock.patch("fastapi_cache.decorator.cache", lambda *args, **kwargs: lambda f: f).start() # Мокаем кеширование
+
 import pytest
 from typing import AsyncGenerator
 from httpx import AsyncClient, ASGITransport
@@ -78,3 +82,18 @@ async def register_user(ac, setup_database):
         })
 
     assert(response.status_code in [200, 201])
+
+@pytest.fixture(scope="session")
+async def auth_ac(ac, register_user):
+    response = await ac.post(
+        '/auth/login',
+        json={
+            'email': 'test@mail.ru',
+            'password': '123412341234',
+        }
+    )
+
+    assert response.status_code in [200, 201]
+    assert 'access_token' in response.cookies
+
+    return ac
