@@ -13,7 +13,11 @@ async def register_user(
         db: DBDep,
         data: UserCreate,
 ):
-    hashed_password = AuthService().hask_password(data.password)
+    existing_user = await db.users.get_one_or_none(email=data.email)
+    if existing_user:
+        raise HTTPException(status_code=409, detail="This user is already registered")
+
+    hashed_password = AuthService().hash_password(data.password)
     new_user_data = UserCreateDB(email=data.email, hashed_password=hashed_password)
     await db.users.add(data=new_user_data)
     await db.commit()
@@ -46,7 +50,7 @@ async def logout(
     response.delete_cookie("access_token")
     return {"success": True}
 
-@router.post('/me')
+@router.get('/me')
 async def get_me(
         db: DBDep,
         user_id: UserIdDep

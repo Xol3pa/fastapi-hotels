@@ -34,6 +34,12 @@ async def db() -> AsyncGenerator[DBManager, None]:
         yield db
 
 
+@pytest.fixture(scope="module")
+async def db_module() -> AsyncGenerator[DBManager, None]:
+    async for db_module in get_db_null_pull():
+        yield db_module
+
+
 app.dependency_overrides[get_db] = get_db_null_pull
 
 

@@ -35,10 +35,17 @@ async def test_create_booking(
         assert isinstance(res["data"], dict)
 
 
-async def test_cleanup_after_create_booking_tests(db):
-    """Очистка после серии тестов test_create_booking"""
-    await db.bookings.delete(force_delete_all=True)
-    await db.commit()
+# @pytest.fixture(scope="module")
+# async def delete_all_bookings():
+#     async for _db in get_db_null_pull():
+#         await _db.bookings.delete(force_delete_all=True)
+#         await _db.commit()
+
+
+@pytest.fixture(scope="module")
+async def delete_all_bookings(db_module):
+    await db_module.bookings.delete(force_delete_all=True)
+    await db_module.commit()
 
 
 @pytest.mark.parametrize(
@@ -51,7 +58,7 @@ async def test_cleanup_after_create_booking_tests(db):
 )
 async def test_add_and_get_bookings(
         room_id, date_from, date_to, status_code, count_bookings,
-        auth_ac
+        auth_ac, delete_all_bookings
 ):
     response_create = await auth_ac.post(
         "/bookings",

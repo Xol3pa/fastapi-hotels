@@ -23,7 +23,7 @@ class AuthService:
     def verify_password(self, plain_password, hashed_password):
         return self.pwd_context.verify(plain_password, hashed_password)
 
-    def hask_password(self, password):
+    def hash_password(self, password):
         return self.pwd_context.hash(password)
 
     def decode_access_token(self, token: str):
