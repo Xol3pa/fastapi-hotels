@@ -64,7 +64,10 @@ class BaseRepository:
 
         await self.session.execute(edit_data_stmt)
 
-    async def delete(self, *filter, **filter_by) -> None:
+    async def delete(self, *filter, force_delete_all: bool = False, **filter_by) -> None:
+        if not filter and not filter_by and not force_delete_all:
+            raise ValueError("Delete operation requires filters or explicit force_delete_all=True")
+
         delete_stmt = (
             delete(self.model)
             .filter(*filter)

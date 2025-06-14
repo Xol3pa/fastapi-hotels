@@ -22,7 +22,7 @@ class BookingsRepository(BaseRepository):
         return await super().get_one_or_none(**filter_by)
 
     async def get_filtered(self, *filter, **filter_by) -> List[Booking]:
-        return await super().get_filtered(*filter_by, **filter_by)
+        return await super().get_filtered(*filter, **filter_by)
 
     async def add(self, data: BookingCreateDB) -> Optional[Booking]:
         return await super().add(data)
