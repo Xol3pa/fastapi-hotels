@@ -1,6 +1,6 @@
 from pydantic import EmailStr, Field
 
-from . import BaseCreateSchema, BaseResponseSchema, BaseSchema
+from . import BaseCreateSchema, BaseResponseSchema
 
 
 class UserCreate(BaseCreateSchema):

@@ -2,6 +2,7 @@ from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.database import Base
+from src.models import FacilitiesModel
 
 
 class RoomsModel(Base):

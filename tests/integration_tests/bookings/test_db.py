@@ -1,5 +1,4 @@
 from datetime import date, timedelta
-import pytest
 
 from src.schemas.booking import BookingCreateDB, BookingUpdateDB
 

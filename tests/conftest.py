@@ -1,3 +1,4 @@
+# ruff: noqa: E402, F403
 import json
 from unittest import mock
 

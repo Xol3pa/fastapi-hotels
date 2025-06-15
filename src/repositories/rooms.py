@@ -10,7 +10,7 @@ from src.repositories.base import BaseRepository
 from src.models.rooms import RoomsModel
 from src.repositories.mappers.mappers import RoomDataMapper, RoomsWithRelsDataMapper
 from src.repositories.utils import rooms_booked_table_query
-from src.schemas.rooms import Room, RoomsWithRels, RoomCreateDB
+from src.schemas.rooms import Room, RoomCreateDB
 
 
 class RoomsRepository(BaseRepository):

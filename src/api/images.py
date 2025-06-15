@@ -1,4 +1,4 @@
-from fastapi import APIRouter, UploadFile, BackgroundTasks
+from fastapi import APIRouter, UploadFile
 
 from src.tasks.tasks import resize_image
 

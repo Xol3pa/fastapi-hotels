@@ -30,7 +30,7 @@ async def test_create_booking(
 
     assert response.status_code == status_code
     if status_code == 200:
-        assert res["success"] == True
+        assert res["success"]
         assert "data" in res
         assert isinstance(res["data"], dict)
 
