@@ -2,9 +2,10 @@ from typing import Optional, List, Any
 
 from pydantic import BaseModel
 from sqlalchemy import select, insert, update, delete
-from sqlalchemy.exc import NoResultFound
+from sqlalchemy.exc import NoResultFound, IntegrityError
+from asyncpg.exceptions import UniqueViolationError
 
-from src.exceptions import ObjectNotFoundException
+from src.exceptions import ObjectNotFoundException, DuplicateValueException
 from src.repositories.mappers.base import DataMapper
 
 
@@ -48,14 +49,19 @@ class BaseRepository:
 
         return self.mapper.map_to_domain_entity(model)
 
-    async def add(self, data: BaseModel) -> Optional[Any]:
-        add_data_stmt = (
-            insert(self.model).values(**data.model_dump()).returning(self.model)
-        )
-        result = await self.session.execute(add_data_stmt)
-        model = result.scalars().one()
-
-        return self.mapper.map_to_domain_entity(model)
+    async def add(self, data: BaseModel) -> BaseModel | Any:
+        try:
+            add_data_stmt = (
+                insert(self.model).values(**data.model_dump()).returning(self.model)
+            )
+            result = await self.session.execute(add_data_stmt)
+            model = result.scalars().one()
+            return self.mapper.map_to_domain_entity(model)
+        except IntegrityError as e:
+            if isinstance(e.orig.__cause__, UniqueViolationError):
+                raise DuplicateValueException from e
+            else:
+                raise e
 
     async def add_bulk(self, data: list[BaseModel]) -> None:
         add_data_stmt = insert(self.model).values([item.model_dump() for item in data])

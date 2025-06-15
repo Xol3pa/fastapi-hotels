@@ -1,6 +1,7 @@
 from fastapi import APIRouter, HTTPException, Response
 
 from src.api.dependencies import UserIdDep, DBDep
+from src.exceptions import DuplicateValueException
 from src.schemas.users import UserCreate, UserCreateDB
 from src.services.auth import AuthService
 
@@ -13,14 +14,13 @@ async def register_user(
     db: DBDep,
     data: UserCreate,
 ):
-    existing_user = await db.users.get_one_or_none(email=data.email)
-    if existing_user:
-        raise HTTPException(status_code=409, detail="This user is already registered")
-
     hashed_password = AuthService().hash_password(data.password)
     new_user_data = UserCreateDB(email=data.email, hashed_password=hashed_password)
-    await db.users.add(data=new_user_data)
-    await db.commit()
+    try:
+        await db.users.add(data=new_user_data)
+        await db.commit()
+    except DuplicateValueException:
+        raise HTTPException(status_code=409, detail="This email already registered")
 
     return {"success": True}
 

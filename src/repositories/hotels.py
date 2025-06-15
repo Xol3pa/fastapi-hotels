@@ -2,7 +2,6 @@ from datetime import date
 from typing import Optional
 
 from src.database import engine
-from src.exceptions import InvalidDateRangeException
 from src.models.rooms import RoomsModel
 from src.repositories.base import BaseRepository
 from src.models.hotels import HotelsModel
@@ -46,8 +45,6 @@ class HotelsRepository(BaseRepository):
             WHERE rooms.quantity - coalesce(rooms_booked_table.booked_rooms, 0) > 0
         )
         """
-        if date_from >= date_to:
-            raise InvalidDateRangeException
 
         rooms_booked_table = rooms_booked_table_query(
             date_from=date_from,

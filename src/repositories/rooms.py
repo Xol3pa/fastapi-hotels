@@ -6,8 +6,7 @@ from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import selectinload
 from sqlalchemy.sql.functions import coalesce
 
-from src.database import engine
-from src.exceptions import ObjectNotFoundException, InvalidDateRangeException
+from src.exceptions import ObjectNotFoundException
 from src.repositories.base import BaseRepository
 from src.models.rooms import RoomsModel
 from src.repositories.mappers.mappers import RoomDataMapper, RoomsWithRelsDataMapper
@@ -34,9 +33,6 @@ class RoomsRepository(BaseRepository):
         date_from: date,
         date_to: date,
     ):
-        if date_from >= date_to:
-            raise InvalidDateRangeException
-
         rooms_booked_table = rooms_booked_table_query(
             date_from=date_from,
             date_to=date_to,
@@ -61,7 +57,7 @@ class RoomsRepository(BaseRepository):
             .filter(self.model.id.in_(rooms_availability))
         )
 
-        print(query.compile(bind=engine, compile_kwargs={"literal_binds": True}))
+        # print(query.compile(bind=engine, compile_kwargs={"literal_binds": True}))
 
         result = await self.session.execute(query)
         return [

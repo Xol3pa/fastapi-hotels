@@ -2,7 +2,11 @@ from fastapi import APIRouter, HTTPException
 from fastapi_cache.decorator import cache
 
 from src.api.dependencies import DBDep, UserIdDep
-from src.exceptions import ObjectNotFoundException, RoomsAreOccupiedException
+from src.exceptions import (
+    ObjectNotFoundException,
+    RoomsAreOccupiedException,
+    RoomNotFoundHTTPException,
+)
 from src.models.bookings import BookingsModel
 from src.schemas.booking import BookingCreate, BookingCreateDB
 
@@ -30,7 +34,7 @@ async def create_booking(db: DBDep, booking_data: BookingCreate, user_id: UserId
     try:
         room_data = await db.rooms.get_one(id=booking_data.room_id)
     except ObjectNotFoundException:
-        raise HTTPException(status_code=404, detail="Room not found")
+        raise RoomNotFoundHTTPException
 
     booking_price = BookingsModel(
         date_from=booking_data.date_from,
