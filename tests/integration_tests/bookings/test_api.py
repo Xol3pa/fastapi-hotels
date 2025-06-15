@@ -11,19 +11,16 @@ import pytest
         (1, "2025-06-15", "2025-06-16", 200),
         (1, "2025-06-15", "2025-06-16", 409),
         (1, "2025-06-17", "2025-06-18", 200),
-    ]
+    ],
 )
-async def test_create_booking(
-        room_id, date_from, date_to, status_code,
-        auth_ac, db
-):
+async def test_create_booking(room_id, date_from, date_to, status_code, auth_ac, db):
     response = await auth_ac.post(
         "/bookings",
         json={
-            'room_id': room_id,
+            "room_id": room_id,
             "date_from": str(date_from),
             "date_to": str(date_to),
-        }
+        },
     )
 
     res = response.json()
@@ -54,19 +51,24 @@ async def delete_all_bookings(db_module):
         (1, "2025-06-15", "2025-06-16", 200, 1),
         (1, "2025-06-15", "2025-06-16", 200, 2),
         (1, "2025-06-15", "2025-06-16", 200, 3),
-    ]
+    ],
 )
 async def test_add_and_get_bookings(
-        room_id, date_from, date_to, status_code, count_bookings,
-        auth_ac, delete_all_bookings
+    room_id,
+    date_from,
+    date_to,
+    status_code,
+    count_bookings,
+    auth_ac,
+    delete_all_bookings,
 ):
     response_create = await auth_ac.post(
         "/bookings",
         json={
-            'room_id': room_id,
+            "room_id": room_id,
             "date_from": str(date_from),
             "date_to": str(date_to),
-        }
+        },
     )
 
     assert response_create.status_code == status_code

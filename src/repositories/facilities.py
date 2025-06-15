@@ -15,14 +15,9 @@ class RoomsFacilitiesRepository(BaseRepository):
     model = RoomsFacilitiesModel
     mapper = RoomFacilityDataMapper
 
-    async def partially_edit(
-            self,
-            room_id: int,
-            facilities_ids: list[int]
-    ):
-        get_current_facilities_ids_query = (
-            select(self.model.facility_id)
-            .filter_by(room_id=room_id)
+    async def partially_edit(self, room_id: int, facilities_ids: list[int]):
+        get_current_facilities_ids_query = select(self.model.facility_id).filter_by(
+            room_id=room_id
         )
         result = await self.session.execute(get_current_facilities_ids_query)
         current_facilities_ids = set(result.scalars().all())

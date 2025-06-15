@@ -24,6 +24,7 @@ async def lifespan(app: FastAPI):
     yield
     await redis_connector.close()
 
+
 # if settings.MODE == "TEST":
 #     FastAPICache.init(InMemoryBackend(), prefix="fastapi-cache")
 

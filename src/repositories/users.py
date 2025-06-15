@@ -26,8 +26,7 @@ class UsersRepository(BaseRepository):
         return await super().add(data)
 
     async def get_user_with_hashed_password(
-            self,
-            email: EmailStr
+        self, email: EmailStr
     ) -> UserWithPassword | None:
         query = select(self.model).filter_by(email=email)
         result = await self.session.execute(query)
@@ -36,4 +35,3 @@ class UsersRepository(BaseRepository):
             return None
 
         return UserWithPasswordDataMapper.map_to_domain_entity(model)
-

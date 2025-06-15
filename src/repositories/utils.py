@@ -5,8 +5,8 @@ from src.models.bookings import BookingsModel
 
 
 def rooms_booked_table_query(
-        date_from: date,
-        date_to: date,
+    date_from: date,
+    date_to: date,
 ):
     """
     with rooms_booked_table as (
@@ -18,10 +18,7 @@ def rooms_booked_table_query(
     """
 
     return (
-        select(
-            BookingsModel.room_id,
-            func.count("*").label("booked_rooms")
-        )
+        select(BookingsModel.room_id, func.count("*").label("booked_rooms"))
         .select_from(BookingsModel)
         .filter(
             BookingsModel.date_from <= date_to,

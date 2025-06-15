@@ -34,7 +34,9 @@ async def test_bookings_crud(db):
     )
 
     # Проверка бизнес-логики
-    assert booking_data.date_to > booking_data.date_from, "date_to должен быть больше date_from"
+    assert booking_data.date_to > booking_data.date_from, (
+        "date_to должен быть больше date_from"
+    )
     assert booking_data.price > 0, "Цена должна быть положительной"
 
     # Добавляем бронирование
@@ -68,7 +70,9 @@ async def test_bookings_crud(db):
     )
 
     # Проверка новых данных
-    assert update_data.date_to > update_data.date_from, "Новый date_to должен быть больше date_from"
+    assert update_data.date_to > update_data.date_from, (
+        "Новый date_to должен быть больше date_from"
+    )
     assert update_data.price > 0, "Новая цена должна быть положительной"
 
     await db.bookings.edit(

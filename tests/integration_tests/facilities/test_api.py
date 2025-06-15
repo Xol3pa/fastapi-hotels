@@ -1,11 +1,8 @@
-
-
-
 async def test_create_facility(ac):
     response = await ac.post(
         "/facilities",
         json={
-          "title": "Гриль и беседка",
+            "title": "Гриль и беседка",
         },
     )
 
@@ -16,7 +13,6 @@ async def test_get_all_facilities(ac):
     response = await ac.get(
         "/facilities",
     )
-
 
     assert isinstance(response.json(), list)
     assert response.status_code in [200, 201]

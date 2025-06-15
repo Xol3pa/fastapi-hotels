@@ -28,10 +28,10 @@ class BookingsRepository(BaseRepository):
         return await super().add(data)
 
     async def check_availability(
-            self,
-            room_id: int,
-            date_from: date,
-            date_to: date,
+        self,
+        room_id: int,
+        date_from: date,
+        date_to: date,
     ):
         rooms_booked_table = rooms_booked_table_query(
             date_from=date_from,
@@ -41,10 +41,14 @@ class BookingsRepository(BaseRepository):
         query = (
             select(1)
             .select_from(RoomsModel)
-            .outerjoin(rooms_booked_table, RoomsModel.id == rooms_booked_table.c.room_id)
+            .outerjoin(
+                rooms_booked_table, RoomsModel.id == rooms_booked_table.c.room_id
+            )
             .where(
                 RoomsModel.id == room_id,
-                RoomsModel.quantity - func.coalesce(rooms_booked_table.c.booked_rooms, 0) > 0
+                RoomsModel.quantity
+                - func.coalesce(rooms_booked_table.c.booked_rooms, 0)
+                > 0,
             )
         )
 
@@ -52,10 +56,9 @@ class BookingsRepository(BaseRepository):
         return result.scalar() is not None
 
     async def get_bookings_with_today_checkin(self):
-        query = (
-            select(BookingsModel)
-            .filter(BookingsModel.date_from <= date.today())
-        )
+        query = select(BookingsModel).filter(BookingsModel.date_from <= date.today())
         res = await self.session.execute(query)
 
-        return [self.mapper.map_to_domain_entity(booking) for booking in res.scalars().all()]
+        return [
+            self.mapper.map_to_domain_entity(booking) for booking in res.scalars().all()
+        ]

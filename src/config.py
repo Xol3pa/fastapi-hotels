@@ -4,7 +4,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    MODE: Literal['TEST', 'LOCAL', 'DEV', 'PROD']
+    MODE: Literal["TEST", "LOCAL", "DEV", "PROD"]
 
     DB_NAME: str
     DB_USER: str
@@ -17,7 +17,7 @@ class Settings(BaseSettings):
 
     @property
     def redis_url(self) -> str:
-        return f'redis://{self.REDIS_HOST}:{self.REDIS_PORT}'
+        return f"redis://{self.REDIS_HOST}:{self.REDIS_PORT}"
 
     @property
     def db_url(self) -> str:

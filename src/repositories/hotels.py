@@ -17,13 +17,13 @@ class HotelsRepository(BaseRepository):
     mapper = HotelDataMapper
 
     async def get_filtered(
-            self,
-            date_from: date,
-            date_to: date,
-            location: Optional[str],
-            title: Optional[str],
-            limit: Optional[int],
-            offset: Optional[int]
+        self,
+        date_from: date,
+        date_to: date,
+        location: Optional[str],
+        title: Optional[str],
+        limit: Optional[int],
+        offset: Optional[int],
     ) -> list[Hotel]:
         """
         WITH rooms_booked_table AS (
@@ -51,15 +51,17 @@ class HotelsRepository(BaseRepository):
         )
 
         available_rooms = (
-            select(
-                RoomsModel.hotel_id
-            )
+            select(RoomsModel.hotel_id)
             .select_from(RoomsModel)
             .outerjoin(
                 rooms_booked_table, RoomsModel.id == rooms_booked_table.c.room_id
             )
             .filter(
-                (RoomsModel.quantity - func.coalesce(rooms_booked_table.c.booked_rooms, 0)) > 0
+                (
+                    RoomsModel.quantity
+                    - func.coalesce(rooms_booked_table.c.booked_rooms, 0)
+                )
+                > 0
             )
         )
 
@@ -70,28 +72,24 @@ class HotelsRepository(BaseRepository):
                 HotelsModel.location,
             )
             .select_from(HotelsModel)
-            .filter(
-                HotelsModel.id.in_(
-                    available_rooms
-                )
-            )
+            .filter(HotelsModel.id.in_(available_rooms))
         )
 
         if location:
-            query = query.filter(func.lower(HotelsModel.location).contains(func.lower(location)))
+            query = query.filter(
+                func.lower(HotelsModel.location).contains(func.lower(location))
+            )
         if title:
-            query = query.filter(func.lower(HotelsModel.title).contains(func.lower(title)))
+            query = query.filter(
+                func.lower(HotelsModel.title).contains(func.lower(title))
+            )
 
-        query = (
-            query
-            .limit(limit)
-            .offset(offset)
-        )
+        query = query.limit(limit).offset(offset)
 
         print(query.compile(bind=engine, compile_kwargs={"literal_binds": True}))
 
         result = await self.session.execute(query)
 
-        return [self.mapper.map_to_domain_entity(model) for model in result.mappings().all()]
-
-
+        return [
+            self.mapper.map_to_domain_entity(model) for model in result.mappings().all()
+        ]

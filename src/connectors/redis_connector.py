@@ -10,7 +10,7 @@ class RedisConnector:
     async def connect(self):
         print("Устанавливаю соединение с Redis")
         self.redis = await redis.Redis(host=self.host, port=self.port)
-        print('Соединение с Redis установлено')
+        print("Соединение с Redis установлено")
 
     async def set(self, key: str, value: str, expire: int = None):
         if expire:

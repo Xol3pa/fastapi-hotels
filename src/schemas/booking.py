@@ -8,6 +8,7 @@ from . import BaseCreateSchema, BaseResponseSchema, BaseUpdateSchema
 
 class BookingCreate(BaseCreateSchema):
     """Схема для создания бронирования через API"""
+
     room_id: int = Field(..., description="ID комнаты")
     date_from: date = Field(..., description="Дата заезда")
     date_to: date = Field(..., description="Дата выезда")
@@ -15,6 +16,7 @@ class BookingCreate(BaseCreateSchema):
 
 class BookingCreateDB(BaseCreateSchema):
     """Схема для создания бронирования в БД"""
+
     user_id: int = Field(..., description="ID пользователя")
     room_id: int = Field(..., description="ID комнаты")
     date_from: date = Field(..., description="Дата заезда")
@@ -32,6 +34,7 @@ class BookingUpdateDB(BaseUpdateSchema):
 
 class Booking(BaseResponseSchema):
     """Схема бронирования для ответа"""
+
     user_id: int = Field(..., description="ID пользователя")
     room_id: int = Field(..., description="ID комнаты")
     date_from: date = Field(..., description="Дата заезда")

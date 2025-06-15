@@ -27,10 +27,10 @@ class RoomsRepository(BaseRepository):
         return await super().add(data)
 
     async def get_filtered_by_time(
-            self,
-            hotel_id: int,
-            date_from: date,
-            date_to: date,
+        self,
+        hotel_id: int,
+        date_from: date,
+        date_to: date,
     ):
         rooms_booked_table = rooms_booked_table_query(
             date_from=date_from,
@@ -40,10 +40,13 @@ class RoomsRepository(BaseRepository):
         rooms_availability = (
             select(self.model.id)
             .select_from(self.model)
-            .outerjoin(rooms_booked_table, self.model.id == rooms_booked_table.c.room_id)
+            .outerjoin(
+                rooms_booked_table, self.model.id == rooms_booked_table.c.room_id
+            )
             .filter(
                 self.model.hotel_id == hotel_id,
-                (self.model.quantity - coalesce(rooms_booked_table.c.booked_rooms, 0)) > 0
+                (self.model.quantity - coalesce(rooms_booked_table.c.booked_rooms, 0))
+                > 0,
             )
         )
 
@@ -56,12 +59,12 @@ class RoomsRepository(BaseRepository):
         print(query.compile(bind=engine, compile_kwargs={"literal_binds": True}))
 
         result = await self.session.execute(query)
-        return [RoomsWithRelsDataMapper.map_to_domain_entity(room) for room in result.scalars().all()]
+        return [
+            RoomsWithRelsDataMapper.map_to_domain_entity(room)
+            for room in result.scalars().all()
+        ]
 
-    async def get_one_or_none(
-            self,
-            **filter_by
-    ) -> Optional[Room]:
+    async def get_one_or_none(self, **filter_by) -> Optional[Room]:
         query = (
             select(self.model)
             .select_from(self.model)

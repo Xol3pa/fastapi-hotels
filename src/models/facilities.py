@@ -12,8 +12,7 @@ class FacilitiesModel(Base):
     title: Mapped[str] = mapped_column(String(50))
 
     rooms: Mapped[list["RoomsModel"]] = relationship(
-        secondary="rooms_facilities",
-        back_populates="facilities"
+        secondary="rooms_facilities", back_populates="facilities"
     )
 
 
@@ -21,5 +20,5 @@ class RoomsFacilitiesModel(Base):
     __tablename__ = "rooms_facilities"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    room_id: Mapped[int] =mapped_column(ForeignKey('rooms.id'))
-    facility_id: Mapped[int] = mapped_column(ForeignKey('facilities.id'))
+    room_id: Mapped[int] = mapped_column(ForeignKey("rooms.id"))
+    facility_id: Mapped[int] = mapped_column(ForeignKey("facilities.id"))

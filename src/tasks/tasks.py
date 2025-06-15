@@ -59,6 +59,7 @@ def resize_image(image_path):
         print(f"Ошибка при обработке изображения: {e}")
         return []
 
+
 async def get_bookings_with_today_checkin_helper():
     print("enter")
     async with DBManager(session_factory=async_session_maker_null_pull) as db:
@@ -66,6 +67,7 @@ async def get_bookings_with_today_checkin_helper():
         print("result")
     print("exit")
 
-@celery_instance.task(name='bookings_from_today')
+
+@celery_instance.task(name="bookings_from_today")
 def send_emails_to_users_with_today_bookings():
     asyncio.run(get_bookings_with_today_checkin_helper())

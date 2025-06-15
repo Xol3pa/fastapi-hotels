@@ -10,8 +10,8 @@ router = APIRouter(prefix="/auth", tags=["Авторизация и аутент
 
 @router.post("/register")
 async def register_user(
-        db: DBDep,
-        data: UserCreate,
+    db: DBDep,
+    data: UserCreate,
 ):
     existing_user = await db.users.get_one_or_none(email=data.email)
     if existing_user:
@@ -24,12 +24,9 @@ async def register_user(
 
     return {"success": True}
 
-@router.post('/login')
-async def login_user(
-        db: DBDep,
-        data: UserCreate,
-        response: Response
-):
+
+@router.post("/login")
+async def login_user(db: DBDep, data: UserCreate, response: Response):
     user = await db.users.get_user_with_hashed_password(email=data.email)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
@@ -43,17 +40,14 @@ async def login_user(
         "access_token": access_token,
     }
 
-@router.post('/logout')
-async def logout(
-        response: Response
-):
+
+@router.post("/logout")
+async def logout(response: Response):
     response.delete_cookie("access_token")
     return {"success": True}
 
-@router.get('/me')
-async def get_me(
-        db: DBDep,
-        user_id: UserIdDep
-):
+
+@router.get("/me")
+async def get_me(db: DBDep, user_id: UserIdDep):
     user = await db.users.get_one_or_none(id=user_id)
     return user

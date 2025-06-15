@@ -7,6 +7,7 @@ from .facilities import Facility
 
 class RoomCreate(BaseCreateSchema):
     """Схема для создания комнаты"""
+
     title: str = Field(..., description="Название комнаты")
     price: int = Field(..., gt=0, description="Цена за ночь")
     quantity: int = Field(..., gt=0, description="Количество комнат")
@@ -23,11 +24,13 @@ class RoomCreateDB(BaseCreateSchema):
 
 class RoomCreateWithHotel(RoomCreateDB):
     """Схема для создания комнаты с привязкой к отелю для БД"""
+
     hotel_id: int = Field(..., description="ID отеля")
 
 
 class RoomUpdateDB(BaseUpdateSchema):
     """Схема для обновления комнаты"""
+
     title: Optional[str] = Field(None, description="Название комнаты")
     price: Optional[int] = Field(None, gt=0, description="Цена за ночь")
     quantity: Optional[int] = Field(None, gt=0, description="Количество комнат")
@@ -40,6 +43,7 @@ class RoomUpdate(RoomUpdateDB):
 
 class Room(BaseResponseSchema):
     """Схема комнаты для ответа"""
+
     hotel_id: int = Field(..., description="ID отеля")
     title: str = Field(..., description="Название комнаты")
     price: int = Field(..., description="Цена за ночь")

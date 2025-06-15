@@ -6,6 +6,7 @@ from src.database import Base
 DBModelType = TypeVar("DBModelType", bound=Base)
 SchemaType = TypeVar("SchemaType", bound=BaseModel)
 
+
 class DataMapper(Generic[DBModelType, SchemaType]):
     db_model: type[DBModelType] = None
     schema: type[SchemaType] = None
