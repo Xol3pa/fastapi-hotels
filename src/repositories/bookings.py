@@ -3,6 +3,7 @@ from typing import List, Optional
 
 from sqlalchemy import select, func
 
+from src.exceptions import RoomsAreOccupiedException
 from src.models import RoomsModel
 from src.models.bookings import BookingsModel
 from src.repositories.base import BaseRepository
@@ -24,8 +25,16 @@ class BookingsRepository(BaseRepository):
     async def get_filtered(self, *filter, **filter_by) -> List[Booking]:
         return await super().get_filtered(*filter, **filter_by)
 
-    async def add(self, data: BookingCreateDB) -> Optional[Booking]:
-        return await super().add(data)
+    async def create_booking(self, data: BookingCreateDB) -> Booking:
+        available_rooms = await self.check_availability(
+            room_id=data.room_id, date_from=data.date_from, date_to=data.date_to
+        )
+        if not available_rooms:
+            raise RoomsAreOccupiedException
+
+        booking = await self.add(data)
+
+        return booking
 
     async def check_availability(
         self,

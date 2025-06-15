@@ -2,10 +2,12 @@ from datetime import date
 from typing import List, Optional
 
 from sqlalchemy import select
+from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import selectinload
 from sqlalchemy.sql.functions import coalesce
 
 from src.database import engine
+from src.exceptions import ObjectNotFoundException, InvalidDateRangeException
 from src.repositories.base import BaseRepository
 from src.models.rooms import RoomsModel
 from src.repositories.mappers.mappers import RoomDataMapper, RoomsWithRelsDataMapper
@@ -32,6 +34,9 @@ class RoomsRepository(BaseRepository):
         date_from: date,
         date_to: date,
     ):
+        if date_from >= date_to:
+            raise InvalidDateRangeException
+
         rooms_booked_table = rooms_booked_table_query(
             date_from=date_from,
             date_to=date_to,
@@ -73,5 +78,22 @@ class RoomsRepository(BaseRepository):
         )
         result = await self.session.execute(query)
         model = result.scalars().one_or_none()
+
+        return RoomsWithRelsDataMapper.map_to_domain_entity(model)
+
+    async def get_one(self, **filter_by) -> Room:
+        query = (
+            select(self.model)
+            .select_from(self.model)
+            .options(selectinload(self.model.facilities))
+            .filter_by(**filter_by)
+        )
+
+        result = await self.session.execute(query)
+
+        try:
+            model = result.scalar_one()
+        except NoResultFound:
+            raise ObjectNotFoundException
 
         return RoomsWithRelsDataMapper.map_to_domain_entity(model)

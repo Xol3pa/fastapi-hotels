@@ -2,6 +2,7 @@ from fastapi import APIRouter, HTTPException
 from fastapi_cache.decorator import cache
 
 from src.api.dependencies import DBDep, UserIdDep
+from src.exceptions import ObjectNotFoundException, RoomsAreOccupiedException
 from src.models.bookings import BookingsModel
 from src.schemas.booking import BookingCreate, BookingCreateDB
 
@@ -26,20 +27,10 @@ async def get_user_bookings(
 
 @router.post("")
 async def create_booking(db: DBDep, booking_data: BookingCreate, user_id: UserIdDep):
-    room_data = await db.rooms.get_one_or_none(id=booking_data.room_id)
-    if room_data is None:
+    try:
+        room_data = await db.rooms.get_one(id=booking_data.room_id)
+    except ObjectNotFoundException:
         raise HTTPException(status_code=404, detail="Room not found")
-
-    availability_rooms = await db.bookings.check_availability(
-        room_id=room_data.id,
-        date_from=booking_data.date_from,
-        date_to=booking_data.date_to,
-    )
-
-    if not availability_rooms:
-        raise HTTPException(
-            status_code=409, detail="Rooms is already booked for these dates"
-        )
 
     booking_price = BookingsModel(
         date_from=booking_data.date_from,
@@ -47,11 +38,14 @@ async def create_booking(db: DBDep, booking_data: BookingCreate, user_id: UserId
         price=room_data.price,
     ).total_cost
 
-    booking = await db.bookings.add(
-        BookingCreateDB(
-            user_id=user_id, price=booking_price, **booking_data.model_dump()
+    try:
+        booking = await db.bookings.create_booking(
+            BookingCreateDB(
+                user_id=user_id, price=booking_price, **booking_data.model_dump()
+            )
         )
-    )
+    except RoomsAreOccupiedException as e:
+        raise HTTPException(status_code=409, detail=e.detail)
 
     await db.commit()
     return {"success": True, "data": booking}
