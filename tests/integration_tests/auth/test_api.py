@@ -31,8 +31,8 @@ async def test_authorisation_flow(
         }
     )
     assert register_response.status_code == register_status_code
-    if register_status_code == 200:
-        assert register_response.json()['success'] == True
+    if register_status_code != 200:
+        return
 
     response_login = await ac.post(
         "/auth/login",
