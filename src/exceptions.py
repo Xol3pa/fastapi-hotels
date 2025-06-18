@@ -30,6 +30,10 @@ class DuplicateValueException(ProjectException):
     detail = "Duplicate value found"
 
 
+class InvalidDeleteOptions(ProjectException):
+    detail = "Delete operation requires filters or explicit force_delete_all=True"
+
+
 class InvalidDateRangeHTTPException(ProjectHTTPException):
     status_code = 422
     detail = "Check-in date must be before check-out date"
@@ -48,3 +52,8 @@ class RoomNotFoundHTTPException(ProjectHTTPException):
 class HotelNotFoundHTTPException(ProjectHTTPException):
     status_code = 404
     detail = "Hotel not found"
+
+
+class InvalidDeleteOptionsHTTPException(ProjectHTTPException):
+    status_code = 400
+    detail = "Delete operation requires filters or explicit force_delete_all=True"

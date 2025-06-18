@@ -57,7 +57,7 @@ class RoomsRepository(BaseRepository):
             .filter(self.model.id.in_(rooms_availability))
         )
 
-        # print(query.compile(bind=engine, compile_kwargs={"literal_binds": True}))
+        # logging.debug(query.compile(bind=engine, compile_kwargs={"literal_binds": True}))
 
         result = await self.session.execute(query)
         return [

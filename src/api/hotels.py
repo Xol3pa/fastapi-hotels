@@ -5,7 +5,7 @@ from fastapi_cache.decorator import cache
 from src.exceptions import (
     ObjectNotFoundException,
     check_date_to_after_date_from,
-    HotelNotFoundHTTPException,
+    HotelNotFoundHTTPException, InvalidDeleteOptions, InvalidDeleteOptionsHTTPException,
 )
 from src.schemas.hotels import HotelUpdate, HotelCreate
 from src.api.dependencies import PaginationDep, DBDep
@@ -74,7 +74,10 @@ async def partially_change_hotel(db: DBDep, hotel_id: int, hotel_data: HotelUpda
 
 @router.delete("/{hotel_id}")
 async def delete_hotel(db: DBDep, hotel_id: int):
-    await db.hotels.delete(id=hotel_id)
-    await db.commit()
+    try:
+        await db.hotels.delete(id=hotel_id)
+        await db.commit()
+    except InvalidDeleteOptions:
+        raise InvalidDeleteOptionsHTTPException
 
     return {"success": "true"}

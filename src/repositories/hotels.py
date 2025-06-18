@@ -1,3 +1,4 @@
+import logging
 from datetime import date
 from typing import Optional
 
@@ -87,7 +88,7 @@ class HotelsRepository(BaseRepository):
 
         query = query.limit(limit).offset(offset)
 
-        print(query.compile(bind=engine, compile_kwargs={"literal_binds": True}))
+        # logging.debug(query.compile(bind=engine, compile_kwargs={"literal_binds": True}))
 
         result = await self.session.execute(query)
 

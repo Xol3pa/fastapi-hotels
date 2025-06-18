@@ -1,11 +1,11 @@
+import logging
 from typing import Optional, List, Any
-
 from pydantic import BaseModel
 from sqlalchemy import select, insert, update, delete
 from sqlalchemy.exc import NoResultFound, IntegrityError
 from asyncpg.exceptions import UniqueViolationError
 
-from src.exceptions import ObjectNotFoundException, DuplicateValueException
+from src.exceptions import ObjectNotFoundException, DuplicateValueException, InvalidDeleteOptions
 from src.repositories.mappers.base import DataMapper
 
 
@@ -58,10 +58,12 @@ class BaseRepository:
             model = result.scalars().one()
             return self.mapper.map_to_domain_entity(model)
         except IntegrityError as e:
+            logging.error(f'Incorrect data: {data=}, error type: {type(e.orig.__cause__)}')
             if isinstance(e.orig.__cause__, UniqueViolationError):
                 raise DuplicateValueException from e
             else:
-                raise e
+                logging.critical(f"Unexpected error: {e}")
+                raise
 
     async def add_bulk(self, data: list[BaseModel]) -> None:
         add_data_stmt = insert(self.model).values([item.model_dump() for item in data])
@@ -83,9 +85,7 @@ class BaseRepository:
         self, *filter, force_delete_all: bool = False, **filter_by
     ) -> None:
         if not filter and not filter_by and not force_delete_all:
-            raise ValueError(
-                "Delete operation requires filters or explicit force_delete_all=True"
-            )
+            raise InvalidDeleteOptions
 
         delete_stmt = delete(self.model).filter(*filter).filter_by(**filter_by)
         await self.session.execute(delete_stmt)

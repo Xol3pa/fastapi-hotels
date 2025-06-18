@@ -1,5 +1,6 @@
 import os
 import asyncio
+import logging
 from time import sleep
 from pathlib import Path
 from PIL import Image
@@ -12,7 +13,7 @@ from src.utils.db_manager import DBManager
 @celery_instance.task()
 def test_task():
     sleep(5)
-    print("Конец")
+    logging.debug("END")
 
 
 @celery_instance.task()
@@ -48,24 +49,24 @@ def resize_image(image_path):
                 resized_img.save(output_path, quality=95, optimize=True)
                 saved_files.append(output_path)
 
-                print(f"Сохранено: {output_path} ({size}x{new_height})")
+                logging.info(f"Сохранено: {output_path} ({size}x{new_height})")
 
             return saved_files
 
     except FileNotFoundError:
-        print(f"Ошибка: Файл {image_path} не найден")
+        logging.error(f"Ошибка: Файл {image_path} не найден")
         return []
     except Exception as e:
-        print(f"Ошибка при обработке изображения: {e}")
+        logging.exception(f"Ошибка при обработке изображения: {e}")
         return []
 
 
 async def get_bookings_with_today_checkin_helper():
-    print("enter")
+    logging.debug("enter get_bookings_with_today_checkin_helper")
     async with DBManager(session_factory=async_session_maker_null_pull) as db:
         await db.bookings.get_bookings_with_today_checkin()
-        print("result")
-    print("exit")
+        logging.debug("result get_bookings_with_today_checkin_helper")
+    logging.debug("exit get_bookings_with_today_checkin_helper")
 
 
 @celery_instance.task(name="bookings_from_today")
