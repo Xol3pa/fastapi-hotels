@@ -4,7 +4,9 @@ from fastapi_cache.decorator import cache
 from src.api.dependencies import DBDep, UserIdDep
 from src.exceptions import (
     RoomsAreOccupiedException,
-    RoomNotFoundHTTPException, RoomsAreOccupiedHTTPException, RoomNotFoundException,
+    RoomNotFoundHTTPException,
+    RoomsAreOccupiedHTTPException,
+    RoomNotFoundException,
 )
 from src.schemas.booking import BookingCreate
 from src.services.bookings import BookingsService

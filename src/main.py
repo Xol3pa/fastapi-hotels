@@ -20,6 +20,7 @@ from src.api.images import router as router_images
 
 logging.basicConfig(level=logging.INFO)
 
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     await redis_connector.connect()

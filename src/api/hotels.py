@@ -3,8 +3,12 @@ from fastapi import APIRouter, Query
 from fastapi_cache.decorator import cache
 
 from src.exceptions import (
-    HotelNotFoundHTTPException, InvalidDeleteOptionsException, InvalidDeleteOptionsHTTPException,
-    InvalidDateRangeException, InvalidDateRangeHTTPException, HotelNotFoundException,
+    HotelNotFoundHTTPException,
+    InvalidDeleteOptionsException,
+    InvalidDeleteOptionsHTTPException,
+    InvalidDateRangeException,
+    InvalidDateRangeHTTPException,
+    HotelNotFoundException,
 )
 from src.schemas.hotels import HotelUpdate, HotelCreate
 from src.api.dependencies import PaginationDep, DBDep
@@ -26,7 +30,9 @@ async def get_hotels(
     """Получение всех отелей по фильтрам"""
 
     try:
-        hotels = await HotelsService(db).get_hotels(pagination, date_from, date_to, location, title)
+        hotels = await HotelsService(db).get_hotels(
+            pagination, date_from, date_to, location, title
+        )
     except InvalidDateRangeException:
         raise InvalidDateRangeHTTPException
     return hotels
@@ -84,6 +90,5 @@ async def delete_hotel(db: DBDep, hotel_id: int):
         raise InvalidDeleteOptionsHTTPException
     except HotelNotFoundException:
         raise HotelNotFoundHTTPException
-
 
     return {"success": True}

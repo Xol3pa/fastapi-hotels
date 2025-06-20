@@ -10,12 +10,12 @@ class HotelsService(BaseService):
     """Сервисный слой для работы с эндпоинтами /hotels"""
 
     async def get_hotels(
-            self,
-            pagination: PaginationParams,
-            date_from: date,
-            date_to: date,
-            location: Optional[str],
-            title: Optional[str],
+        self,
+        pagination: PaginationParams,
+        date_from: date,
+        date_to: date,
+        location: Optional[str],
+        title: Optional[str],
     ):
         self.date_validator.validate_date_to_after_date_from(date_from, date_to)
         per_page = pagination.per_page or 5

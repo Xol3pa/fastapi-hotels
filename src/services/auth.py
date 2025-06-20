@@ -1,13 +1,17 @@
-import logging
 from datetime import datetime, timedelta, timezone
 
 import jwt
-from fastapi import HTTPException
 from passlib.context import CryptContext
 
 from src.config import settings
-from src.exceptions import DuplicateValueException, UserNotFoundException, IncorrectPasswordException, \
-    ObjectNotFoundException, UserEmailAlreadyExistsException, InvalidTokenException
+from src.exceptions import (
+    DuplicateValueException,
+    UserNotFoundException,
+    IncorrectPasswordException,
+    ObjectNotFoundException,
+    UserEmailAlreadyExistsException,
+    InvalidTokenException,
+)
 from src.schemas.users import UserCreate, UserCreateDB
 from src.services.base import BaseService
 

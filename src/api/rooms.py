@@ -5,8 +5,13 @@ from fastapi_cache.decorator import cache
 from src.api.dependencies import DBDep
 from src.exceptions import (
     RoomNotFoundHTTPException,
-    HotelNotFoundHTTPException, RoomNotFoundException, InvalidDateRangeException, InvalidDateRangeHTTPException,
-    HotelNotFoundException, FacilityNotFoundException, FacilityNotFoundHTTPException,
+    HotelNotFoundHTTPException,
+    RoomNotFoundException,
+    InvalidDateRangeException,
+    InvalidDateRangeHTTPException,
+    HotelNotFoundException,
+    FacilityNotFoundException,
+    FacilityNotFoundHTTPException,
 )
 from src.schemas.rooms import (
     RoomCreate,
@@ -29,7 +34,7 @@ async def get_rooms(
     """Получение всех комнат отеля"""
 
     try:
-        hotel_rooms =  await RoomsService(db).get_rooms(hotel_id, date_from, date_to)
+        hotel_rooms = await RoomsService(db).get_rooms(hotel_id, date_from, date_to)
     except InvalidDateRangeException:
         raise InvalidDateRangeHTTPException
     return hotel_rooms

@@ -20,8 +20,12 @@ class BookingsService(BaseService):
         return bookings
 
     async def create_booking(self, data: BookingCreate, user_id: int) -> Booking:
-        self.date_validator.validate_date_to_after_date_from(data.date_from, data.date_to)
-        room_data = await self.entity_validator.validate_room_exists_any_hotel(room_id=data.room_id)
+        self.date_validator.validate_date_to_after_date_from(
+            data.date_from, data.date_to
+        )
+        room_data = await self.entity_validator.validate_room_exists_any_hotel(
+            room_id=data.room_id
+        )
         booking_price = BookingsModel(
             date_from=data.date_from,
             date_to=data.date_to,

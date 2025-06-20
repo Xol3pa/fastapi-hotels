@@ -1,6 +1,3 @@
-
-
-
 class DocstringRequiredMeta(type):
     """Метакласс требующий dockstring у классов"""
 

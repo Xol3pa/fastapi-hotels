@@ -3,4 +3,3 @@ from src.services.validators.entity import EntityValidator
 
 
 __all__ = ["EntityValidator", "DateValidator"]
-

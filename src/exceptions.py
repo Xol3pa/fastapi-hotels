@@ -74,6 +74,7 @@ class InvalidDateRangeException(ProjectException):
 
 # HTTPExceptions
 
+
 class InvalidDateRangeHTTPException(ProjectHTTPException):
     status_code = 422
     detail = "Check-in date must be before check-out date"
@@ -82,6 +83,7 @@ class InvalidDateRangeHTTPException(ProjectHTTPException):
 class InvalidAccessTokenHTTPException(ProjectHTTPException):
     status_code = 401
     detail = "Invalid access token"
+
 
 class RoomNotFoundHTTPException(ProjectHTTPException):
     status_code = 404
@@ -96,6 +98,7 @@ class HotelNotFoundHTTPException(ProjectHTTPException):
 class FacilityNotFoundHTTPException(ProjectHTTPException):
     status_code = 404
     detail = "Facility not found"
+
 
 class InvalidDeleteOptionsHTTPException(ProjectHTTPException):
     status_code = 400

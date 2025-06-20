@@ -1,5 +1,10 @@
-from src.exceptions import ObjectNotFoundException, RoomNotFoundException, HotelNotFoundException, \
-    FacilityNotFoundException, UserNotFoundException
+from src.exceptions import (
+    ObjectNotFoundException,
+    RoomNotFoundException,
+    HotelNotFoundException,
+    FacilityNotFoundException,
+    UserNotFoundException,
+)
 from src.schemas.facilities import Facility
 from src.schemas.hotels import Hotel
 from src.schemas.rooms import RoomWithRels
@@ -32,7 +37,9 @@ class EntityValidator(BaseValidator):
             raise HotelNotFoundException
         return hotel
 
-    async def validate_facilities_exist(self, facilities_ids: list[int]) -> list[Facility]:
+    async def validate_facilities_exist(
+        self, facilities_ids: list[int]
+    ) -> list[Facility]:
         if not facilities_ids:
             return []
 

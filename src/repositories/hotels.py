@@ -1,8 +1,6 @@
-import logging
 from datetime import date
 from typing import Optional
 
-from src.database import engine
 from src.models.rooms import RoomsModel
 from src.repositories.base import BaseRepository
 from src.models.hotels import HotelsModel

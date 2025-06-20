@@ -5,7 +5,11 @@ from sqlalchemy import select, insert, update, delete
 from sqlalchemy.exc import NoResultFound, IntegrityError
 from asyncpg.exceptions import UniqueViolationError
 
-from src.exceptions import ObjectNotFoundException, DuplicateValueException, InvalidDeleteOptionsException
+from src.exceptions import (
+    ObjectNotFoundException,
+    DuplicateValueException,
+    InvalidDeleteOptionsException,
+)
 from src.repositories.mappers.base import DataMapper
 
 
@@ -58,7 +62,9 @@ class BaseRepository:
             model = result.scalars().one()
             return self.mapper.map_to_domain_entity(model)
         except IntegrityError as e:
-            logging.error(f'Incorrect data: {data=}, error type: {type(e.orig.__cause__)}')
+            logging.error(
+                f"Incorrect data: {data=}, error type: {type(e.orig.__cause__)}"
+            )
             if isinstance(e.orig.__cause__, UniqueViolationError):
                 raise DuplicateValueException from e
             else:
