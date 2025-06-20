@@ -1,14 +1,29 @@
+import logging
+
 from sqlalchemy import select
 
+from src.exceptions import ObjectNotFoundException
 from src.models.facilities import FacilitiesModel, RoomsFacilitiesModel
 from src.repositories.base import BaseRepository
 from src.repositories.mappers.mappers import FacilityDataMapper, RoomFacilityDataMapper
-from src.schemas.facilities import RoomFacilityCreate
+from src.schemas.facilities import RoomFacilityCreate, Facility
 
 
 class FacilitiesRepository(BaseRepository):
     model = FacilitiesModel
     mapper = FacilityDataMapper
+
+    async def get_by_ids(self, facilities_ids: list[int]) -> list[Facility]:
+        if not facilities_ids:
+            return []
+
+        result = await self.get_filtered(self.model.id.in_(facilities_ids))
+        if len(result) != len(facilities_ids):
+            missing_ids = set(facilities_ids) - set(result)
+            logging.warning(f"Facilities not found: {missing_ids}")
+            raise ObjectNotFoundException
+
+        return result
 
 
 class RoomsFacilitiesRepository(BaseRepository):

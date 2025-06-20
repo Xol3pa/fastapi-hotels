@@ -1,5 +1,5 @@
 from datetime import date
-from typing import List, Optional
+from typing import Optional
 
 from sqlalchemy import select, func
 
@@ -16,13 +16,13 @@ class BookingsRepository(BaseRepository):
     model = BookingsModel
     mapper = BookingDataMapper
 
-    async def get_all(self, *args, **kwargs) -> List[Booking]:
+    async def get_all(self, *args, **kwargs) -> list[Booking]:
         return await super().get_all(*args, **kwargs)
 
     async def get_one_or_none(self, **filter_by) -> Optional[Booking]:
         return await super().get_one_or_none(**filter_by)
 
-    async def get_filtered(self, *filter, **filter_by) -> List[Booking]:
+    async def get_filtered(self, *filter, **filter_by) -> list[Booking]:
         return await super().get_filtered(*filter, **filter_by)
 
     async def create_booking(self, data: BookingCreateDB) -> Booking:

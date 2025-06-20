@@ -1,10 +1,11 @@
+import logging
+import uvicorn
+import sys
 from contextlib import asynccontextmanager
 from fastapi_cache import FastAPICache
 from fastapi_cache.backends.redis import RedisBackend
 from fastapi import FastAPI
 from pathlib import Path
-import uvicorn
-import sys
 
 sys.path.append(str(Path(__file__).parent.parent))
 
@@ -12,10 +13,12 @@ from src.init import redis_connector
 from src.api.hotels import router as router_hotels
 from src.api.auth import router as router_auth
 from src.api.rooms import router as router_rooms
-from src.api.booking import router as router_bookings
+from src.api.bookings import router as router_bookings
 from src.api.facilities import router as router_facilities
 from src.api.images import router as router_images
 
+
+logging.basicConfig(level=logging.INFO)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):

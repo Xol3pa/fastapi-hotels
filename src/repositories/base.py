@@ -1,11 +1,11 @@
 import logging
-from typing import Optional, List, Any
+from typing import Optional, Any
 from pydantic import BaseModel
 from sqlalchemy import select, insert, update, delete
 from sqlalchemy.exc import NoResultFound, IntegrityError
 from asyncpg.exceptions import UniqueViolationError
 
-from src.exceptions import ObjectNotFoundException, DuplicateValueException, InvalidDeleteOptions
+from src.exceptions import ObjectNotFoundException, DuplicateValueException, InvalidDeleteOptionsException
 from src.repositories.mappers.base import DataMapper
 
 
@@ -16,14 +16,14 @@ class BaseRepository:
     def __init__(self, session):
         self.session = session
 
-    async def get_all(self, *args, **kwargs) -> List[Any]:
+    async def get_all(self, *args, **kwargs) -> list[Any]:
         query = select(self.model)
         result = await self.session.execute(query)
         return [
             self.mapper.map_to_domain_entity(model) for model in result.scalars().all()
         ]
 
-    async def get_filtered(self, *filter, **filter_by) -> List[Any]:
+    async def get_filtered(self, *filter, **filter_by) -> list[Any]:
         query = select(self.model).filter(*filter).filter_by(**filter_by)
         result = await self.session.execute(query)
         return [
@@ -85,7 +85,7 @@ class BaseRepository:
         self, *filter, force_delete_all: bool = False, **filter_by
     ) -> None:
         if not filter and not filter_by and not force_delete_all:
-            raise InvalidDeleteOptions
+            raise InvalidDeleteOptionsException
 
         delete_stmt = delete(self.model).filter(*filter).filter_by(**filter_by)
         await self.session.execute(delete_stmt)

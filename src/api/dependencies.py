@@ -1,8 +1,9 @@
-from typing import Annotated
-from fastapi import Query, Depends, Request, HTTPException
+from typing import Annotated, AsyncGenerator
+from fastapi import Query, Depends, Request
 from pydantic import BaseModel
 
 from src.database import async_session_maker
+from src.exceptions import InvalidAccessTokenHTTPException
 from src.services.auth import AuthService
 from src.utils.db_manager import DBManager
 
@@ -21,7 +22,7 @@ def get_token(request: Request) -> str:
     access_token = request.cookies.get("access_token", None)
 
     if not access_token:
-        raise HTTPException(status_code=401, detail="Invalid access token")
+        raise InvalidAccessTokenHTTPException
 
     return access_token
 
@@ -35,7 +36,7 @@ def get_current_user_id(token: str = Depends(get_token)) -> int:
 UserIdDep = Annotated[int, Depends(get_current_user_id)]
 
 
-async def get_db():
+async def get_db() -> AsyncGenerator[DBManager, None]:
     async with DBManager(session_factory=async_session_maker) as db:
         yield db
 

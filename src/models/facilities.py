@@ -1,5 +1,5 @@
 from typing import TYPE_CHECKING
-from sqlalchemy import String, ForeignKey
+from sqlalchemy import String, ForeignKey, Index, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.database import Base
@@ -13,6 +13,10 @@ class FacilitiesModel(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     title: Mapped[str] = mapped_column(String(50))
+
+    __table_args__ = (
+        Index("ix_facilities_title_lower", func.lower(title), unique=True),
+    )
 
     rooms: Mapped[list["RoomsModel"]] = relationship(
         secondary="rooms_facilities", back_populates="facilities"

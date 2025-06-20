@@ -1,5 +1,5 @@
 from datetime import date
-from typing import List, Optional
+from typing import Optional
 
 from sqlalchemy import select
 from sqlalchemy.exc import NoResultFound
@@ -11,17 +11,17 @@ from src.repositories.base import BaseRepository
 from src.models.rooms import RoomsModel
 from src.repositories.mappers.mappers import RoomDataMapper, RoomsWithRelsDataMapper
 from src.repositories.utils import rooms_booked_table_query
-from src.schemas.rooms import Room, RoomCreateDB
+from src.schemas.rooms import Room, RoomCreateDB, RoomWithRels
 
 
 class RoomsRepository(BaseRepository):
     model = RoomsModel
     mapper = RoomDataMapper
 
-    async def get_all(self, *args, **kwargs) -> List[Room]:
+    async def get_all(self, *args, **kwargs) -> list[Room]:
         return await super().get_all(*args, **kwargs)
 
-    async def get_filtered(self, *filter, **filter_by) -> List[Room]:
+    async def get_filtered(self, *filter, **filter_by) -> list[Room]:
         return await super().get_filtered(*filter_by, **filter_by)
 
     async def add(self, data: RoomCreateDB) -> Optional[Room]:
@@ -32,7 +32,7 @@ class RoomsRepository(BaseRepository):
         hotel_id: int,
         date_from: date,
         date_to: date,
-    ):
+    ) -> list[RoomWithRels]:
         rooms_booked_table = rooms_booked_table_query(
             date_from=date_from,
             date_to=date_to,
@@ -65,7 +65,7 @@ class RoomsRepository(BaseRepository):
             for room in result.scalars().all()
         ]
 
-    async def get_one_or_none(self, **filter_by) -> Optional[Room]:
+    async def get_one_or_none(self, **filter_by) -> Optional[RoomWithRels]:
         query = (
             select(self.model)
             .select_from(self.model)
@@ -77,7 +77,7 @@ class RoomsRepository(BaseRepository):
 
         return RoomsWithRelsDataMapper.map_to_domain_entity(model)
 
-    async def get_one(self, **filter_by) -> Room:
+    async def get_one(self, **filter_by) -> RoomWithRels:
         query = (
             select(self.model)
             .select_from(self.model)

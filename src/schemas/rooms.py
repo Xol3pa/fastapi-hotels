@@ -51,5 +51,5 @@ class Room(BaseResponseSchema):
     description: Optional[str] = Field(None, description="Описание комнаты")
 
 
-class RoomsWithRels(Room):
+class RoomWithRels(Room):
     facilities: list[Facility]
