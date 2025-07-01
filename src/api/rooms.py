@@ -1,5 +1,6 @@
 from datetime import date
 from fastapi import APIRouter, Query
+from fastapi.openapi.models import Example
 from fastapi_cache.decorator import cache
 
 from src.api.dependencies import DBDep
@@ -28,8 +29,12 @@ router = APIRouter(prefix="/hotels", tags=["Комнаты"])
 async def get_rooms(
     db: DBDep,
     hotel_id: int,
-    date_from: date = Query(examples=["2025-05-01"]),
-    date_to: date = Query(examples=["2025-05-02"]),
+    date_from: date = Query(openapi_examples={
+        "current": Example(value=date(2020, 1, 1))
+    }),
+    date_to: date = Query(openapi_examples={
+        "future": Example(value=date(2020, 1, 5))
+    }),
 ) -> list[RoomWithRels]:
     """Получение всех комнат отеля"""
 

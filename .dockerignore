@@ -1,0 +1,21 @@
+# Виртуальное окружение
+venv/
+.venv/
+
+# Системы контроля версий
+.git/
+.gitignore
+
+# Кэш Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Файлы IDE и редакторов
+.idea/
+.vscode/
+
+# Кэш тестов
+.pytest_cache/
+.tox/

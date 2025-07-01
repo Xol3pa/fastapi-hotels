@@ -1,5 +1,6 @@
 from datetime import date
 from fastapi import APIRouter, Query
+from fastapi.openapi.models import Example
 from fastapi_cache.decorator import cache
 
 from src.exceptions import (
@@ -10,7 +11,7 @@ from src.exceptions import (
     InvalidDateRangeHTTPException,
     HotelNotFoundException,
 )
-from src.schemas.hotels import HotelUpdate, HotelCreate
+from src.schemas.hotels import HotelUpdate, HotelCreate, Hotel
 from src.api.dependencies import PaginationDep, DBDep
 from src.services.hotels import HotelsService
 
@@ -18,15 +19,19 @@ router = APIRouter(prefix="/hotels", tags=["Отели"])
 
 
 @router.get("")
-@cache(expire=10)
+@cache(expire=60)
 async def get_hotels(
     db: DBDep,
     pagination: PaginationDep,
-    date_from: date = Query(examples=["2025-05-01"]),
-    date_to: date = Query(examples=["2025-05-02"]),
+    date_from: date = Query(openapi_examples={
+        "current": Example(value=date(2020, 1, 1))
+    }),
+    date_to: date = Query(openapi_examples={
+        "future": Example(value=date(2020, 1, 5))
+    }),
     location: str | None = Query(None, description="Hotel location"),
     title: str | None = Query(None, description="Hotel title"),
-):
+) -> list[Hotel]:
     """Получение всех отелей по фильтрам"""
 
     try:
@@ -39,7 +44,7 @@ async def get_hotels(
 
 
 @router.get("/{hotel_id}")
-async def get_hotel_by_id(db: DBDep, hotel_id: int):
+async def get_hotel_by_id(db: DBDep, hotel_id: int) -> Hotel:
     """Получение определенного отеля"""
 
     try:
